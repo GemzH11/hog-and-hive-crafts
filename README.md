@@ -60,6 +60,7 @@ This project is in active development.
 Current Phase: Initial Setup (v0.1)
 
 v0.1 Scope:
+
 - User registration and login
 - Private pattern CRUD
 - PDF upload and download
@@ -82,4 +83,3 @@ Details will be added once the initial implementation is complete.
 ## 🤝 Contributing
 
 This is a personal project in active development. Contributions are not currently being accepted, but you're welcome to open issues or share ideas via the [GitHub issue tracker](https://github.com/GemzH11/hog-and-hive-crafts/issues).
-
