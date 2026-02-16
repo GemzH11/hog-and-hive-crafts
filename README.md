@@ -40,7 +40,7 @@ The backend exposes a RESTful API and uses local filesystem-based file storage.
 hog-and-hive-crafts/
 ├── backend/ # Spring Boot application
 ├── backend/ # React application
-├── .github/ # GitHub Actions workflows
+├── .github/ # GitHub configuration
 ├── docker-compose.yml
 └── README.md
 
