@@ -1,5 +1,6 @@
 package uk.co.hogandhivecrafts.backend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import uk.co.hogandhivecrafts.backend.dto.CreateEmployeeRequest;
 import uk.co.hogandhivecrafts.backend.dto.UpdateEmployeeRequest;
 import uk.co.hogandhivecrafts.backend.entity.Employee;
 import uk.co.hogandhivecrafts.backend.service.EmployeeService;
+import uk.co.hogandhivecrafts.backend.util.DtoMapper;
 
 import java.util.List;
 
@@ -51,11 +53,8 @@ public class EmployeeController {
      * @return Saved Employee entity
      */
     @PostMapping()
-    public ResponseEntity<Employee> saveEmployee(@RequestBody CreateEmployeeRequest createEmployeeRequest) {
-        Employee employee = Employee.builder()
-                .firstName(createEmployeeRequest.getFirstName())
-                .lastName(createEmployeeRequest.getLastName())
-                .build();
+    public ResponseEntity<Employee> saveEmployee(@Valid @RequestBody CreateEmployeeRequest createEmployeeRequest) {
+        Employee employee = DtoMapper.toEmployee(createEmployeeRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployee(employee));
     }
 
@@ -66,12 +65,8 @@ public class EmployeeController {
      * @return Updated employee
      */
     @PutMapping()
-    public ResponseEntity<Employee> updateEmployee(@RequestBody UpdateEmployeeRequest updateEmployeeRequest) {
-        Employee employee = Employee.builder()
-                .id(updateEmployeeRequest.getId())
-                .firstName(updateEmployeeRequest.getFirstName())
-                .lastName(updateEmployeeRequest.getLastName())
-                .build();
+    public ResponseEntity<Employee> updateEmployee(@Valid @RequestBody UpdateEmployeeRequest updateEmployeeRequest) {
+        Employee employee = DtoMapper.toEmployee(updateEmployeeRequest);
         return ResponseEntity.ok().body(employeeService.updateEmployee(employee));
     }
 
@@ -81,7 +76,7 @@ public class EmployeeController {
      * @param id - employee id
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Employee> deleteEmployeeById(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteEmployeeById(@PathVariable Integer id) {
         employeeService.deleteEmployeeById(id);
         return ResponseEntity.noContent().build();
     }

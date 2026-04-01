@@ -13,8 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EmployeeController.class)
 public class EmployeeControllerTest {
@@ -33,6 +32,7 @@ public class EmployeeControllerTest {
 
         mockMvc.perform(get("/employees/v1/1"))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.firstName").value("Joe"))
                 .andExpect(jsonPath("$.lastName").value("Blogs"));
@@ -51,8 +51,9 @@ public class EmployeeControllerTest {
                         }
                         """))
                 .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$" + ".firstName").value("Joe"))
+                .andExpect(jsonPath("$.firstName").value("Joe"))
                 .andExpect(jsonPath("$.lastName").value("Blogs"));
     }
 }

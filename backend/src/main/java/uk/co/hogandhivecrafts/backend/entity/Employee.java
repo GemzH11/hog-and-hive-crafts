@@ -16,13 +16,13 @@ import lombok.*;
 public class Employee {
 
     @Id // Declare the primary key of an entity class
-    @GeneratedValue(strategy = GenerationType.AUTO) // auto-generate unique ID for entity
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto-generate unique ID for entity
     private Integer id;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "surname")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
     @Override

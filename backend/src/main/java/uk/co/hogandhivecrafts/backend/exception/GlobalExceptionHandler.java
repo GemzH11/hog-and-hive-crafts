@@ -1,4 +1,4 @@
-package uk.co.hogandhivecrafts.backend.exceptions;
+package uk.co.hogandhivecrafts.backend.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

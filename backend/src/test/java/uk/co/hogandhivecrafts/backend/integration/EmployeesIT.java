@@ -9,6 +9,7 @@ import uk.co.hogandhivecrafts.backend.entity.Employee;
 import uk.co.hogandhivecrafts.backend.repository.EmployeeRepository;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.equalTo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -20,18 +21,24 @@ public class EmployeesIT {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    private Integer testEmployeeId;
+
     @BeforeEach
     void setUp() {
+        // Clear the database and add a test employee before each test
         employeeRepository.deleteAll();
-        employeeRepository.save(new Employee(null, "Joe", "Blogs"));
+        testEmployeeId = employeeRepository.save(new Employee(null, "Joe", "Blogs")).getId();
     }
 
     @Test
     void getEmployeeById_employeeExists_returns200AndEmployee() {
         given().port(port)
-                .when().get("/employees/v1/1")
+                .when().get("/employees/v1/" + testEmployeeId)
                 .then().statusCode(200)
-                .body("firstName", equalTo("Joe"));
+                .contentType("application/json")
+                .body("id", equalTo(testEmployeeId))
+                .body("firstName", equalTo("Joe"))
+                .body("lastName", equalTo("Blogs"));
     }
 
     @Test
@@ -39,11 +46,14 @@ public class EmployeesIT {
         given().port(port).contentType("application/json").body("""
                             {
                                 "firstName": "Jane",
-                                "surname": "Doe"
+                                "lastName": "Doe"
                             }
                         """)
                 .when().post("/employees/v1")
                 .then().statusCode(201)
-                .body("firstName", equalTo("Jane"));
+                .contentType("application/json")
+                .body("id", any(Integer.class))
+                .body("firstName", equalTo("Jane"))
+                .body("lastName", equalTo("Doe"));
     }
 }

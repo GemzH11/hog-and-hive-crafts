@@ -3,8 +3,9 @@ package uk.co.hogandhivecrafts.backend.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.co.hogandhivecrafts.backend.entity.Employee;
-import uk.co.hogandhivecrafts.backend.exceptions.EmployeeNotFoundException;
+import uk.co.hogandhivecrafts.backend.exception.EmployeeNotFoundException;
 import uk.co.hogandhivecrafts.backend.repository.EmployeeRepository;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class EmployeeService {
     /**
      * Saves an Employee entity
      *
-     * @param employee - Request body is an Employee entity
+     * @param employee - Employee entity to be created
      * @return Saved Employee entity
      */
     public Employee saveEmployee(Employee employee) {
@@ -58,6 +59,7 @@ public class EmployeeService {
      * @return Updated employee
      * @throws EmployeeNotFoundException - if employee with the given id is not found
      */
+    @Transactional
     public Employee updateEmployee(Employee employee) throws EmployeeNotFoundException {
         Employee existingEmployee = employeeRepository.findById(employee.getId()).orElseThrow(() -> {
             log.warn("Employee with id: {} not found", employee.getId());
@@ -77,6 +79,7 @@ public class EmployeeService {
      * @param id - employee id
      * @throws EmployeeNotFoundException - if employee with the given id is not found
      */
+    @Transactional
     public void deleteEmployeeById(Integer id) throws EmployeeNotFoundException {
         Employee existingEmployee = employeeRepository.findById(id).orElseThrow(() -> {
             log.warn("Employee with id: {} not found", id);
