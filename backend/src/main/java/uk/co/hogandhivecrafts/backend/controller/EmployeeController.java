@@ -25,6 +25,8 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
+    private final DtoMapper dtoMapper;
+
     /**
      * Fetches all employees
      *
@@ -54,7 +56,7 @@ public class EmployeeController {
      */
     @PostMapping()
     public ResponseEntity<Employee> saveEmployee(@Valid @RequestBody CreateEmployeeRequest createEmployeeRequest) {
-        Employee employee = DtoMapper.toEmployee(createEmployeeRequest);
+        Employee employee = dtoMapper.toEmployee(createEmployeeRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployee(employee));
     }
 
@@ -66,7 +68,7 @@ public class EmployeeController {
      */
     @PutMapping()
     public ResponseEntity<Employee> updateEmployee(@Valid @RequestBody UpdateEmployeeRequest updateEmployeeRequest) {
-        Employee employee = DtoMapper.toEmployee(updateEmployeeRequest);
+        Employee employee = dtoMapper.toEmployee(updateEmployeeRequest);
         return ResponseEntity.ok().body(employeeService.updateEmployee(employee));
     }
 

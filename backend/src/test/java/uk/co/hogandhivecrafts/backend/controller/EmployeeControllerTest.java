@@ -26,6 +26,8 @@ public class EmployeeControllerTest {
 
     @Test
     void getEmployeeById_employeeExists_returns200AndEmployee() throws Exception {
+        // Test checks that when an employee with the given ID exists, the endpoint returns a 200 status code and
+        // the correct employee data in JSON format.
         Employee employee = new Employee(1, "Joe", "Blogs");
 
         given(employeeService.getEmployeeById(1)).willReturn(employee);
@@ -40,6 +42,8 @@ public class EmployeeControllerTest {
 
     @Test
     void postEmployee_validInput_returns201AndSavedEmployee() throws Exception {
+        // Test checks that when a valid employee creation request is sent, the endpoint returns a 201 status code and
+        // the correct employee data in JSON format, including an auto-generated ID.
         Employee employee = new Employee(1, "Joe", "Blogs");
 
         given(employeeService.saveEmployee(any(Employee.class))).willReturn(employee);

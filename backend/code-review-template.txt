@@ -1,0 +1,20 @@
+Perform a code review for the code changes given in code-changes.txt file.
+The code changes in code-changes.txt file are given in the format of a git diff output.
+Focus only on the code changes given in the code-changes.txt file and ignore any other code.
+
+The code review should focused on following aspects:
+programming best practices, code readability, and code maintainability.
+intended functionality and the performance of the application.
+code formatting and code styling.
+code structure and code design.
+proper variable/method naming conventions.
+code comments and documentation.
+
+The code review should include up to 3 pros and up to 5 improvement points of the code changes.
+If there are no pros, mention that there are no pros.
+If there are no improvement points, mention that there are no improvement points.
+
+Use appropriate styling, colors, icons in the code review, so that it is easy to read and understand.
+Write a small summary on the overall code changes whether it is good or bad and why.
+At the end of the code review, provide a solution or an alternative code snippet to improve the code changes.
+Along with the code snippets, mention the file name where the changes should be done.

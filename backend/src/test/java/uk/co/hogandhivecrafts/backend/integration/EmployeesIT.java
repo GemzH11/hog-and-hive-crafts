@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.MediaType;
 import uk.co.hogandhivecrafts.backend.entity.Employee;
 import uk.co.hogandhivecrafts.backend.repository.EmployeeRepository;
 
@@ -32,10 +33,12 @@ public class EmployeesIT {
 
     @Test
     void getEmployeeById_employeeExists_returns200AndEmployee() {
+        // Test checks that when an employee with the given ID exists, the endpoint returns a 200 status code and the
+        // correct employee data in JSON format.
         given().port(port)
                 .when().get("/employees/v1/" + testEmployeeId)
                 .then().statusCode(200)
-                .contentType("application/json")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body("id", equalTo(testEmployeeId))
                 .body("firstName", equalTo("Joe"))
                 .body("lastName", equalTo("Blogs"));
@@ -43,7 +46,9 @@ public class EmployeesIT {
 
     @Test
     void postEmployee_validInput_returns201AndSavedEmployee() {
-        given().port(port).contentType("application/json").body("""
+        // Test checks that when a valid employee creation request is sent, the endpoint returns a 201 status code
+        // and the correct employee data in JSON format, including an auto-generated ID.
+        given().port(port).contentType(MediaType.APPLICATION_JSON_VALUE).body("""
                             {
                                 "firstName": "Jane",
                                 "lastName": "Doe"
@@ -51,7 +56,7 @@ public class EmployeesIT {
                         """)
                 .when().post("/employees/v1")
                 .then().statusCode(201)
-                .contentType("application/json")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body("id", any(Integer.class))
                 .body("firstName", equalTo("Jane"))
                 .body("lastName", equalTo("Doe"));

@@ -24,6 +24,7 @@ public class EmployeeServiceTest {
 
     @Test
     void getEmployeeById_employeeExists_returnsEmployee() {
+        // Test checks that when an employee with the given ID exists, the service returns the correct employee.
         Employee employee = new Employee(TEST_ID, "Joe", "Blogs");
         Mockito.when(employeeRepository.findById(TEST_ID))
                 .thenReturn(Optional.of(employee));
@@ -37,6 +38,8 @@ public class EmployeeServiceTest {
 
     @Test
     void getEmployeeById_employeeNotFound_throwsException() {
+        // Test checks that when an employee with the given ID does not exist, the service throws an
+        // EmployeeNotFoundException with the correct message.
         Mockito.when(employeeRepository.findById(TEST_ID))
                 .thenReturn(Optional.empty());
 
