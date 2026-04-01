@@ -1,0 +1,1 @@
+INSERT INTO employees (id, first_name, surname) VALUES (1, 'Joe', 'Blogs');

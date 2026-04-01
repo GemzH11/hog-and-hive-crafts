@@ -1,0 +1,10 @@
+spring:
+  application:
+    name:
+      backend
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+    defer-datasource-initialization: true
