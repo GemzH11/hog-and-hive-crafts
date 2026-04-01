@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import uk.co.hogandhivecrafts.backend.dto.CreateEmployeeRequest;
+import uk.co.hogandhivecrafts.backend.dto.UpdateEmployeeRequest;
 import uk.co.hogandhivecrafts.backend.entity.Employee;
 import uk.co.hogandhivecrafts.backend.service.EmployeeService;
 
@@ -45,22 +47,31 @@ public class EmployeeController {
     /**
      * Saves an Employee entity
      *
-     * @param employee - Request body is an Employee entity
+     * @param createEmployeeRequest - Request body is an Employee entity
      * @return Saved Employee entity
      */
     @PostMapping()
-    public ResponseEntity<Employee> saveEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<Employee> saveEmployee(@RequestBody CreateEmployeeRequest createEmployeeRequest) {
+        Employee employee = Employee.builder()
+                .firstName(createEmployeeRequest.getFirstName())
+                .lastName(createEmployeeRequest.getLastName())
+                .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployee(employee));
     }
 
     /**
      * Updates an Employee entity
      *
-     * @param employee - Employee entity to be updated
+     * @param updateEmployeeRequest - Employee entity to be updated
      * @return Updated employee
      */
     @PutMapping()
-    public ResponseEntity<Employee> updateEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<Employee> updateEmployee(@RequestBody UpdateEmployeeRequest updateEmployeeRequest) {
+        Employee employee = Employee.builder()
+                .id(updateEmployeeRequest.getId())
+                .firstName(updateEmployeeRequest.getFirstName())
+                .lastName(updateEmployeeRequest.getLastName())
+                .build();
         return ResponseEntity.ok().body(employeeService.updateEmployee(employee));
     }
 
