@@ -10,7 +10,7 @@ Comprehensive code review guidelines for GitHub Copilot that can be adapted to a
 
 ## Review Language
 
-When performing a code review, respond in **English** (or specify your preferred language).
+When performing a code review, respond in **English**.
 
 ## Review Priorities
 
