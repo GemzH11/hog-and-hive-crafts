@@ -15,6 +15,7 @@
     <description>Backend API for Hog &amp; Hive Crafts</description>
     <properties>
         <java.version>21</java.version>
+        <skipUnitTests>false</skipUnitTests>
     </properties>
     <dependencies>
         <dependency>
@@ -101,6 +102,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <skipTests>${skipUnitTests}</skipTests>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
@@ -135,7 +137,7 @@
         <profile>
             <id>integration</id>
             <properties>
-                <skipTests>True</skipTests>
+                <skipUnitTests>true</skipUnitTests>
             </properties>
         </profile>
     </profiles>
