@@ -1,54 +1,73 @@
 ---
-description: 'Markdown guidelines and content creation standards for blog posts'
+description: 'Markdown accessibility guidelines based on GitHub''s 5 best practices for inclusive documentation'
 applyTo: '**/*.md'
 ---
 
-# Markdown Content Rules
+# Markdown Accessibility Review Guidelines
 
-The following markdown content rules are enforced in the validators:
+When reviewing markdown files, check for the following accessibility issues based on GitHub's [5 tips for making your GitHub profile page accessible](https://github.blog/developer-skills/github/5-tips-for-making-your-github-profile-page-accessible/). Flag violations and suggest fixes with clear explanations of the accessibility impact.
 
-1. **Headings**: Use appropriate heading levels (H2, H3, etc.) to structure your content. Do not use an H1 heading, as this will be generated based on the title.
-2. **Lists**: Use bullet points or numbered lists for lists. Ensure proper indentation and spacing.
-3. **Code Blocks**: Use fenced code blocks for code snippets. Specify the language for syntax highlighting.
-4. **Links**: Use proper markdown syntax for links. Ensure that links are valid and accessible.
-5. **Images**: Use proper markdown syntax for images. Include alt text for accessibility.
-6. **Tables**: Use markdown tables for tabular data. Ensure proper formatting and alignment.
-7. **Line Length**: Limit line length to 400 characters for readability.
-8. **Whitespace**: Use appropriate whitespace to separate sections and improve readability.
-9. **Front Matter**: Include YAML front matter at the beginning of the file with required metadata fields.
+## 1. Descriptive Links
 
-## Formatting and Structure
+- Flag generic link text such as "click here," "here," "this," "read more," or "link."
+- Link text must make sense when read out of context, because assistive technology can present links as an isolated list.
+- Flag multiple links on the same page that share identical text but point to different destinations.
+- Bare URLs in prose should be converted to descriptive links.
 
-Follow these guidelines for formatting and structuring your markdown content:
+Bad: `Read my blog post [here](https://example.com)`
+Good: `Read my blog post "[Crafting an accessible resume](https://example.com)"`
 
-- **Headings**: Use `##` for H2 and `###` for H3. Ensure that headings are used in a hierarchical manner. Recommend restructuring if content includes H4, and more strongly recommend for H5.
-- **Lists**: Use `-` for bullet points and `1.` for numbered lists. Indent nested lists with two spaces.
-- **Code Blocks**: Use triple backticks (```) to create fenced code blocks. Specify the language after the opening backticks for syntax highlighting (e.g., `csharp`).
-- **Links**: Use `[link text](URL)` for links. Ensure that the link text is descriptive and the URL is valid.
-- **Images**: Use `![alt text](image URL)` for images. Include a brief description of the image in the alt text.
-- **Tables**: Use `|` to create tables. Ensure that columns are properly aligned and headers are included.
-- **Line Length**: Break lines at 80 characters to improve readability. Use soft line breaks for long paragraphs.
-- **Whitespace**: Use blank lines to separate sections and improve readability. Avoid excessive whitespace.
+## 2. Image Alt Text
 
-## Validation Checklist
+- Flag images with empty alt text (e.g., `![](path/to/image.png)`) unless they are explicitly decorative.
+- Flag alt text that is a filename (e.g., `img_1234.jpg`) or generic placeholder (e.g., `screenshot`, `image`).
+- Alt text should be succinct and descriptive. Include any text visible in the image.
+- Use "screenshot of" where relevant, but do not prefix with "image of" since screen readers announce that automatically.
+- For complex images (charts, infographics), suggest summarizing the data in alt text and providing longer descriptions via `<details>` tags or linked content.
+- When suggesting alt text improvements, present them as recommendations for the author to review. Alt text requires understanding of visual content and context that only the author can properly assess.
 
-Ensure compliance with the following validation requirements:
+## 3. Heading Hierarchy
 
-### Front Matter
+- There must be only one H1 (`#`) per document, used as the page title. Note: in projects where H1 is auto-generated from front matter, start content at H2.
+- Headings must follow a logical hierarchy and never skip levels (e.g., `##` followed by `####` is a violation).
+- Flag bold text (`**text**`) used as a visual substitute for a proper heading.
+- Proper heading structure allows assistive technology users to navigate by section and helps sighted users scan content.
 
-- [ ] `post_title`: The title of the post.
-- [ ] `author1`: The primary author of the post.
-- [ ] `post_slug`: The URL slug for the post.
-- [ ] `microsoft_alias`: The Microsoft alias of the author.
-- [ ] `featured_image`: The URL of the featured image.
-- [ ] `categories`: The categories for the post. These categories must be from the list in /categories.txt.
-- [ ] `tags`: The tags for the post.
-- [ ] `ai_note`: Indicate if AI was used in the creation of the post.
-- [ ] `summary`: A brief summary of the post. Recommend a summary based on the content when possible.
-- [ ] `post_date`: The publication date of the post.
+## 4. Plain Language
 
-### Content and Formatting
+- Flag unnecessarily complex or jargon-heavy language that could be simplified.
+- Favor short sentences, common words, and active voice.
+- Flag long, dense paragraphs that could be broken into smaller sections or lists.
+- When describing UI navigation, write actions as sequential steps in plain language first (e.g., "open Settings, then select Preferences"). Use generic, stable labels rather than icon names or visual descriptions.
+- A parenthetical visual reference may follow as supplemental context (e.g., "(gear icon > Preferences)"), but never use visual breadcrumb notation or icon names as the sole way to describe a navigation path.
+- When suggesting plain language improvements, present them as recommendations for the author to review. Language decisions require understanding of audience, context, and tone.
 
-- [ ] Content follows the markdown content rules specified above.
-- [ ] Content is properly formatted and structured according to the guidelines.
-- [ ] Validation tools have been run to check for compliance with the rules and guidelines.
+## 5. Lists and Emoji Usage
+
+### Lists
+
+- Flag emoji or special characters used as bullet points instead of proper markdown list syntax (`-`, `*`, `+`, or `1.`).
+- Flag sequential items in plain text that should be structured as a proper list.
+- Proper list markup allows screen readers to announce list context (e.g., "item 1 of 3").
+
+### Emoji
+
+- Flag multiple consecutive emoji, which are disruptive to screen reader users since each emoji name is read aloud in full (e.g., "rocket" "sparkles" "fire").
+- Flag emoji used to convey meaning that is not also communicated in text.
+- Emoji should be used sparingly and thoughtfully.
+
+## Review Priority
+
+When multiple issues exist, prioritize in this order:
+
+1. Missing or empty alt text on images
+2. Skipped heading levels or heading hierarchy issues
+3. Non-descriptive link text
+4. Emoji used as bullet points or list markers
+5. Plain language improvements
+
+## Review Tone
+
+- Explain the accessibility impact of each issue, specifying which users are affected (e.g., screen reader users, people with cognitive disabilities, non-native speakers).
+- Do not remove personality or voice from the writing. Accessibility and engaging content are not mutually exclusive.
+- Keep suggestions actionable and specific.
