@@ -7,16 +7,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 import uk.co.hogandhivecrafts.backend.entity.Employee;
 import uk.co.hogandhivecrafts.backend.exception.EmployeeNotFoundException;
 import uk.co.hogandhivecrafts.backend.repository.EmployeeRepository;
 
 import java.util.Optional;
 
+@ActiveProfiles("unit")
 @ExtendWith(MockitoExtension.class)
 public class EmployeeServiceTest {
 
-    private final Integer TEST_ID = 1;
+    private static final Integer TEST_ID = 1;
+
     @Mock
     private EmployeeRepository employeeRepository;
     @InjectMocks
