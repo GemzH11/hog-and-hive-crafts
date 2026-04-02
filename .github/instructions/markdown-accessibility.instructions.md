@@ -13,7 +13,7 @@ The following markdown content rules are enforced in the validators:
 4. **Links**: Use proper markdown syntax for links. Ensure that links are valid and accessible.
 5. **Images**: Use proper markdown syntax for images. Include alt text for accessibility.
 6. **Tables**: Use markdown tables for tabular data. Ensure proper formatting and alignment.
-7. **Line Length**: Limit line length to 400 characters for readability.
+7. **Line Length**: Hard limit is 400 characters per line. Aim for 80 characters as a soft guideline for readability.
 8. **Whitespace**: Use appropriate whitespace to separate sections and improve readability.
 9. **Front Matter**: Include YAML front matter at the beginning of the file with required metadata fields.
 
@@ -27,7 +27,7 @@ Follow these guidelines for formatting and structuring your markdown content:
 - **Links**: Use `[link text](URL)` for links. Ensure that the link text is descriptive and the URL is valid.
 - **Images**: Use `![alt text](image URL)` for images. Include a brief description of the image in the alt text.
 - **Tables**: Use `|` to create tables. Ensure that columns are properly aligned and headers are included.
-- **Line Length**: Break lines at 80 characters to improve readability. Use soft line breaks for long paragraphs.
+- **Line Length**: Aim for 80 characters per line as a soft guideline to improve readability; the hard limit is 400 characters. Use soft line breaks for long paragraphs.
 - **Whitespace**: Use blank lines to separate sections and improve readability. Avoid excessive whitespace.
 
 ## Validation Checklist
