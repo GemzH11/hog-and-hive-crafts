@@ -31,9 +31,8 @@ public class EmployeeService {
     /**
      * @param id - employee id
      * @return Employee with the given id
-     * @throws EmployeeNotFoundException - if employee with the given id is not found
      */
-    public Employee getEmployeeById(Integer id) throws EmployeeNotFoundException {
+    public Employee getEmployeeById(Integer id) {
         return employeeRepository.findById(id).orElseThrow(() -> {
             log.warn("Employee with id: {} not found", id);
             return new EmployeeNotFoundException(id);
@@ -57,10 +56,9 @@ public class EmployeeService {
      *
      * @param employee - Employee entity to be updated
      * @return Updated employee
-     * @throws EmployeeNotFoundException - if employee with the given id is not found
      */
     @Transactional
-    public Employee updateEmployee(Employee employee) throws EmployeeNotFoundException {
+    public Employee updateEmployee(Employee employee) {
         Employee existingEmployee = employeeRepository.findById(employee.getId()).orElseThrow(() -> {
             log.warn("Employee with id: {} not found", employee.getId());
             return new EmployeeNotFoundException(employee.getId());
@@ -77,10 +75,9 @@ public class EmployeeService {
      * Deletes an Employee entity
      *
      * @param id - employee id
-     * @throws EmployeeNotFoundException - if employee with the given id is not found
      */
     @Transactional
-    public void deleteEmployeeById(Integer id) throws EmployeeNotFoundException {
+    public void deleteEmployeeById(Integer id) {
         Employee existingEmployee = employeeRepository.findById(id).orElseThrow(() -> {
             log.warn("Employee with id: {} not found", id);
             return new EmployeeNotFoundException(id);
