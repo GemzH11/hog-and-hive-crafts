@@ -393,7 +393,7 @@ This project uses the following technologies:
 | **Area** | **Stack/Tools** |
 | ------------ | ------------- |
 | Backend | Java 21, Spring Boot, Maven, Spring Security, Spring Data JPA |
-| Database | PosgreSQL, Flyway |
+| Database | PostgreSQL, Flyway |
 | Backend Testing | JUnit, Mockito, Testcontainers |
 | Frontend | React, TypeScript, Vite, Tailwind CSS |
 | Frontend Testing | React Testing Library, Vitest, Playwright |
