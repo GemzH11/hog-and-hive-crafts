@@ -14,9 +14,9 @@ public class DtoMapper {
                 .build();
     }
 
-    public Employee toEmployee(UpdateEmployeeRequest request) {
+    public Employee toEmployee(UpdateEmployeeRequest request, Integer id) {
         return Employee.builder()
-                .id(request.getId())
+                .id(id)
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .build();

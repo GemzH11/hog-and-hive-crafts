@@ -66,9 +66,10 @@ public class EmployeeController {
      * @param updateEmployeeRequest - Employee entity to be updated
      * @return Updated employee
      */
-    @PutMapping()
-    public ResponseEntity<Employee> updateEmployee(@Valid @RequestBody UpdateEmployeeRequest updateEmployeeRequest) {
-        Employee employee = dtoMapper.toEmployee(updateEmployeeRequest);
+    @PutMapping("/{id}")
+    public ResponseEntity<Employee> updateEmployee(@PathVariable Integer id,
+                                                   @Valid @RequestBody UpdateEmployeeRequest updateEmployeeRequest) {
+        Employee employee = dtoMapper.toEmployee(updateEmployeeRequest, id);
         return ResponseEntity.ok().body(employeeService.updateEmployee(employee));
     }
 
