@@ -47,7 +47,8 @@ applyTo: '**/*.java, **/*.kt'
 
 ### Security & Input Handling
 
-- Use parameterized queries | Always use Spring Data JPA or `NamedParameterJdbcTemplate` to prevent SQL injection.
+- Use parameterized queries to prevent SQL injection.
+- Prefer Spring Data JPA or `NamedParameterJdbcTemplate` for database access.
 - Validate request bodies and parameters using JSR-380 (`@NotNull`, `@Size`, etc.) annotations and `BindingResult`
 
 ## Build and Verification
