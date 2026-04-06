@@ -1,29 +1,29 @@
-import type { Employee } from '../types/employee'
-import { addEmployee, getAllEmployees, getEmployeeById, removeEmployee, updateEmployee as updateEmployeeInStore } from './employeesStore'
+import type { Employee } from "../types/employee";
+import { apiDelete, apiGet, apiPost, apiPut } from "./apiClient";
 
-// eslint-disable-next-line @typescript-eslint/require-await
+const API_BASE = "/api/employees/v1";
+
 export async function listEmployees(): Promise<Employee[]> {
-    return getAllEmployees()
+  return apiGet<Employee[]>(API_BASE);
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function getEmployee(id: number): Promise<Employee | undefined> {
-    return getEmployeeById(id)
+export async function getEmployee(id: number): Promise<Employee> {
+  return apiGet<Employee>(`${API_BASE}/${id}`);
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function createEmployee(
-    input: Omit<Employee, 'id'>,
+  input: Omit<Employee, "id">,
 ): Promise<Employee> {
-    return addEmployee(input)
+  return apiPost<Employee>(API_BASE, input);
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function deleteEmployee(id: number): Promise<boolean> {
-    return removeEmployee(id)
+export async function updateEmployee(
+  id: number,
+  patch: Partial<Omit<Employee, "id">>,
+): Promise<Employee> {
+  return apiPut<Employee>(`${API_BASE}/${id}`, patch);
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function updateEmployee(id: number, patch: Partial<Omit<Employee, 'id'>>): Promise<Employee | undefined> {
-    return updateEmployeeInStore(id, patch)
+export async function deleteEmployee(id: number): Promise<void> {
+  return apiDelete<void>(`${API_BASE}/${id}`);
 }

@@ -1,6 +1,6 @@
-import {Link, Route, Routes} from "react-router-dom";
-import {HomePage} from "./pages/HomePage.tsx";
-import {EmployeesListPage} from "./pages/EmployeesListPage.tsx";
+import { Link, Route, Routes } from "react-router-dom";
+import { HomePage } from "./pages/HomePage.tsx";
+import { EmployeesListPage } from "./pages/EmployeesListPage.tsx";
 import { EmployeeEditPage } from "./pages/EmployeeEditPage.tsx";
 
 export default function App() {
@@ -34,5 +34,5 @@ export default function App() {
         </Routes>
       </main>
     </div>
-  )
+  );
 }
