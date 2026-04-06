@@ -45,7 +45,7 @@ public class EmployeeService {
      * @param employee - Employee entity to be created
      * @return Saved Employee entity
      */
-    public Employee saveEmployee(Employee employee) {
+    public Employee createEmployee(Employee employee) {
         Employee savedEmployee = employeeRepository.save(employee);
         log.info("Saved employee: {}", savedEmployee);
         return savedEmployee;

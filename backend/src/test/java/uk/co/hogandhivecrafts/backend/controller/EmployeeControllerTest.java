@@ -48,7 +48,7 @@ public class EmployeeControllerTest {
         // the correct employee data in JSON format, including an auto-generated ID.
         Employee employee = new Employee(1, "Joe", "Blogs");
 
-        given(employeeService.saveEmployee(any(Employee.class))).willReturn(employee);
+        given(employeeService.createEmployee(any(Employee.class))).willReturn(employee);
 
         mockMvc.perform(post("/employees/v1").contentType(MediaType.APPLICATION_JSON).content("""
                         {

@@ -55,9 +55,9 @@ public class EmployeeController {
      * @return Saved Employee entity
      */
     @PostMapping()
-    public ResponseEntity<Employee> saveEmployee(@Valid @RequestBody CreateEmployeeRequest createEmployeeRequest) {
+    public ResponseEntity<Employee> createEmployee(@Valid @RequestBody CreateEmployeeRequest createEmployeeRequest) {
         Employee employee = dtoMapper.toEmployee(createEmployeeRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployee(employee));
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.createEmployee(employee));
     }
 
     /**
