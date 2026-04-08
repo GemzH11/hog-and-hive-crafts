@@ -3,12 +3,14 @@ package uk.co.hogandhivecrafts.backend.controller;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.hogandhivecrafts.backend.entity.Employee;
 import uk.co.hogandhivecrafts.backend.service.EmployeeService;
+import uk.co.hogandhivecrafts.backend.util.DtoMapper;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -18,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ActiveProfiles("unit")
 @WebMvcTest(EmployeeController.class)
+@Import(DtoMapper.class)
 public class EmployeeControllerTest {
 
     @Autowired
