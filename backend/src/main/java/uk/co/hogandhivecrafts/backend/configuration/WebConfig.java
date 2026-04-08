@@ -1,20 +1,21 @@
 package uk.co.hogandhivecrafts.backend.configuration;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerTypePredicate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${app.cors.allowed-origins:}")
-    private String allowedOrigins;
+    private final CorsProperties cors;
+
+    public WebConfig(CorsProperties cors) {
+        this.cors = cors;
+    }
 
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
@@ -24,23 +25,14 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        if (!StringUtils.hasText(allowedOrigins)) {
-            return;
-        }
-
-        String[] origins = Arrays.stream(allowedOrigins.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .toArray(String[]::new);
-
-        if (origins.length == 0) {
+        List<String> origins = cors.allowedOrigins();
+        if (origins == null || origins.isEmpty()) {
             return;
         }
 
         registry.addMapping("/api/**")
-                .allowedOrigins(origins)
+                .allowedOrigins(origins.toArray(String[]::new))
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
-        // .allowCredentials(true); // later, when you do cookies/sessions
     }
 }
