@@ -12,7 +12,8 @@ public class SecurityConfig {
     @Bean
     // TODO: For development purposes only, this should be properly configured for production
     public SecurityFilterChain filterChain(HttpSecurity http) {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable).cors(cors -> {
+                }) // use MVC CORS configuration from WebConfig
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
         return http.build();

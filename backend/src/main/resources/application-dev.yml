@@ -11,4 +11,6 @@ spring:
       ddl-auto: validate
 app:
   cors:
-    allowed-origins:
+    # CORS: comma-separated list of allowed origins (dev only usually).
+    # Leave blank to disable cross-origin access by default.
+    allowed-origins: http://localhost:5173
