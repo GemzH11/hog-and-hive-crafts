@@ -12,13 +12,33 @@ async function parseJson<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+function withApiOrigin(url: string) {
+  const useMocks =
+    String(import.meta.env.VITE_USE_MOCKS).toLowerCase() === "true";
+  const origin = import.meta.env.VITE_API_ORIGIN as string | undefined;
+
+  // If MSW dev mocks are enabled, force relative URLs so the worker can intercept them.
+  if (useMocks) return url;
+
+  // If caller passed an absolute URL already, don't touch it.
+  if (/^https?:\/\//.test(url)) return url;
+
+  // If no origin configured, keep relative URL.
+  if (!origin) return url;
+
+  // Only prefix root-relative URLs like "/api/..."
+  if (!url.startsWith("/")) return url;
+
+  return `${origin}${url}`;
+}
+
 export async function apiGet<T>(url: string): Promise<T> {
-  const response = await fetch(url, { method: "GET" });
+  const response = await fetch(withApiOrigin(url), { method: "GET" });
   return parseJson<T>(response);
 }
 
 export async function apiPost<T>(url: string, body: unknown): Promise<T> {
-  const response = await fetch(url, {
+  const response = await fetch(withApiOrigin(url), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -27,7 +47,7 @@ export async function apiPost<T>(url: string, body: unknown): Promise<T> {
 }
 
 export async function apiPut<T>(url: string, body: unknown): Promise<T> {
-  const response = await fetch(url, {
+  const response = await fetch(withApiOrigin(url), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -36,6 +56,6 @@ export async function apiPut<T>(url: string, body: unknown): Promise<T> {
 }
 
 export async function apiDelete<T>(url: string): Promise<T> {
-  const response = await fetch(url, { method: "DELETE" });
+  const response = await fetch(withApiOrigin(url), { method: "DELETE" });
   return parseJson<T>(response);
 }

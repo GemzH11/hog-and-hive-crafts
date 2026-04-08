@@ -138,7 +138,11 @@ export function EmployeesListPage() {
           <tbody>
             {/* Render a table row per employee */}
             {employees.map((e) => (
-              <tr key={e.id} className="text-sm">
+              <tr
+                key={e.id}
+                className="text-sm"
+                data-testid={`employee-row-${e.id}`}
+              >
                 <td className="border-b px-3 py-2">{e.id}</td>
                 <td className="border-b px-3 py-2">{e.firstName}</td>
                 <td className="border-b px-3 py-2">{e.lastName}</td>

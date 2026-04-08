@@ -13,7 +13,6 @@ export function EmployeeEditPage() {
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -57,23 +56,6 @@ export function EmployeeEditPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  if (notFound) {
-    return (
-      <div className="rounded-lg border bg-white p-6">
-        <h2 className="text-xl font-semibold">Employee not found</h2>
-        <p className="mt-2 text-slate-700">
-          The employee you’re trying to edit doesn’t exist.
-        </p>
-        <Link
-          className="mt-4 inline-block text-blue-700 hover:underline"
-          to="/employees"
-        >
-          Back to Employees
-        </Link>
-      </div>
-    );
   }
 
   return (
