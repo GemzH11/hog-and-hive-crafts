@@ -34,7 +34,7 @@ public class EmployeeControllerTest {
 
         given(employeeService.getEmployeeById(1)).willReturn(employee);
 
-        mockMvc.perform(get("/employees/v1/1"))
+        mockMvc.perform(get("/api/employees/v1/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
@@ -48,9 +48,9 @@ public class EmployeeControllerTest {
         // the correct employee data in JSON format, including an auto-generated ID.
         Employee employee = new Employee(1, "Joe", "Blogs");
 
-        given(employeeService.saveEmployee(any(Employee.class))).willReturn(employee);
+        given(employeeService.createEmployee(any(Employee.class))).willReturn(employee);
 
-        mockMvc.perform(post("/employees/v1").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(post("/api/employees/v1").contentType(MediaType.APPLICATION_JSON).content("""
                         {
                             "firstName": "Joe",
                             "lastName": "Blogs"

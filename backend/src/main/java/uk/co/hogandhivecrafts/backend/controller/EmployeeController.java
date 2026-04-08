@@ -51,13 +51,13 @@ public class EmployeeController {
     /**
      * Saves an Employee entity
      *
-     * @param createEmployeeRequest - Request body is an Employee entity
+     * @param createEmployeeRequest - Employee entity to be created
      * @return Saved Employee entity
      */
     @PostMapping()
-    public ResponseEntity<Employee> saveEmployee(@Valid @RequestBody CreateEmployeeRequest createEmployeeRequest) {
+    public ResponseEntity<Employee> createEmployee(@Valid @RequestBody CreateEmployeeRequest createEmployeeRequest) {
         Employee employee = dtoMapper.toEmployee(createEmployeeRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployee(employee));
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.createEmployee(employee));
     }
 
     /**
