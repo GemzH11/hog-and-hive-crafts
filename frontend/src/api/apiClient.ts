@@ -29,7 +29,8 @@ function withApiOrigin(url: string) {
   // Only prefix root-relative URLs like "/api/..."
   if (!url.startsWith("/")) return url;
 
-  return `${origin}${url}`;
+  const normalizedOrigin = origin.replace(/\/+$/, "");
+  return `${normalizedOrigin}${url}`;
 }
 
 export async function apiGet<T>(url: string): Promise<T> {

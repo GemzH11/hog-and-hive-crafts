@@ -40,7 +40,7 @@ test("E2E: can add a new employee: Success", async ({ page, request }) => {
   } finally {
     if (createdId != null) {
       // cleanup: ignore failure (e.g. if it was already deleted for some reason)
-      void deleteEmployeeQuietly(request, createdId);
+      await deleteEmployeeQuietly(request, createdId);
     }
   }
 });
@@ -86,7 +86,7 @@ test("E2E: can edit an existing employee: Success", async ({
     await expect(page.getByText(updatedFirst)).toBeVisible();
     await expect(page.getByText(updatedLast)).toBeVisible();
   } finally {
-    void deleteEmployeeQuietly(request, employee.id);
+    await deleteEmployeeQuietly(request, employee.id);
   }
 });
 
@@ -114,6 +114,6 @@ test("E2E: can delete an employee: Success", async ({ page, request }) => {
     );
   } finally {
     // cleanup fallback (ignore failure if already deleted)
-    void deleteEmployeeQuietly(request, employee.id);
+    await deleteEmployeeQuietly(request, employee.id);
   }
 });
