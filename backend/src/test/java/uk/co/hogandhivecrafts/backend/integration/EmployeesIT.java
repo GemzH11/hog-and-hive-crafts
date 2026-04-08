@@ -38,7 +38,7 @@ public class EmployeesIT {
         // Test checks that when an employee with the given ID exists, the endpoint returns a 200 status code and the
         // correct employee data in JSON format.
         given().port(port)
-                .when().get("/employees/v1/" + testEmployeeId)
+                .when().get("/api/employees/v1/" + testEmployeeId)
                 .then().statusCode(200)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body("id", equalTo(testEmployeeId))
@@ -56,7 +56,7 @@ public class EmployeesIT {
                                 "lastName": "Doe"
                             }
                         """)
-                .when().post("/employees/v1")
+                .when().post("/api/employees/v1")
                 .then().statusCode(201)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body("id", any(Integer.class))

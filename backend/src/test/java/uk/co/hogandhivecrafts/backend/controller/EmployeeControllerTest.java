@@ -34,7 +34,7 @@ public class EmployeeControllerTest {
 
         given(employeeService.getEmployeeById(1)).willReturn(employee);
 
-        mockMvc.perform(get("/employees/v1/1"))
+        mockMvc.perform(get("/api/employees/v1/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
@@ -50,7 +50,7 @@ public class EmployeeControllerTest {
 
         given(employeeService.createEmployee(any(Employee.class))).willReturn(employee);
 
-        mockMvc.perform(post("/employees/v1").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(post("/api/employees/v1").contentType(MediaType.APPLICATION_JSON).content("""
                         {
                             "firstName": "Joe",
                             "lastName": "Blogs"
