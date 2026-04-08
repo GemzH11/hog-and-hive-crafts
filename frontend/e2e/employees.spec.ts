@@ -1,7 +1,11 @@
 import { test, expect } from "@playwright/test";
 import type { Employee } from "../src/types/employee";
 import { API_BASE } from "./support/urls";
-import { uniqueName } from "./support/testData";
+import {
+  createEmployee,
+  deleteEmployeeQuietly,
+  uniqueName,
+} from "./support/testData";
 
 test("E2E: can add a new employee: Success", async ({ page, request }) => {
   let createdId: number | null = null;
@@ -36,7 +40,7 @@ test("E2E: can add a new employee: Success", async ({ page, request }) => {
   } finally {
     if (createdId != null) {
       // cleanup: ignore failure (e.g. if it was already deleted for some reason)
-      await request.delete(`${API_BASE}/${createdId}`);
+      void deleteEmployeeQuietly(request, createdId);
     }
   }
 });
@@ -45,15 +49,10 @@ test("E2E: can edit an existing employee: Success", async ({
   page,
   request,
 }) => {
-  const created = await request.post(API_BASE, {
-    data: {
-      firstName: uniqueName("EditFrom"),
-      lastName: uniqueName("Setup"),
-    },
+  const employee = await createEmployee(request, {
+    firstName: uniqueName("EditFrom"),
+    lastName: uniqueName("Setup"),
   });
-  expect(created.ok()).toBeTruthy();
-
-  const employee = (await created.json()) as Employee;
 
   const updatedFirst = uniqueName("Updated");
   const updatedLast = uniqueName("Name");
@@ -87,20 +86,15 @@ test("E2E: can edit an existing employee: Success", async ({
     await expect(page.getByText(updatedFirst)).toBeVisible();
     await expect(page.getByText(updatedLast)).toBeVisible();
   } finally {
-    await request.delete(`${API_BASE}/${employee.id}`);
+    void deleteEmployeeQuietly(request, employee.id);
   }
 });
 
 test("E2E: can delete an employee: Success", async ({ page, request }) => {
-  const created = await request.post(API_BASE, {
-    data: {
-      firstName: uniqueName("DeleteMe"),
-      lastName: uniqueName("Employee"),
-    },
+  const employee = await createEmployee(request, {
+    firstName: uniqueName("DeleteMe"),
+    lastName: uniqueName("Employee"),
   });
-  expect(created.ok()).toBeTruthy();
-
-  const employee = (await created.json()) as Employee;
 
   try {
     await page.goto(`/employees`);
@@ -120,6 +114,6 @@ test("E2E: can delete an employee: Success", async ({ page, request }) => {
     );
   } finally {
     // cleanup fallback (ignore failure if already deleted)
-    await request.delete(`${API_BASE}/${employee.id}`);
+    void deleteEmployeeQuietly(request, employee.id);
   }
 });

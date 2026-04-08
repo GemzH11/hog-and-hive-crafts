@@ -90,7 +90,7 @@ export function EmployeeEditPage() {
       <div className="mt-4 flex gap-3">
         <button
           type="button"
-          disabled={loading}
+          disabled={loading || !Number.isFinite(id)}
           onClick={() => {
             void save();
           }}

@@ -51,7 +51,7 @@ public class EmployeeController {
     /**
      * Saves an Employee entity
      *
-     * @param createEmployeeRequest - Request body is an Employee entity
+     * @param createEmployeeRequest - Employee entity to be created
      * @return Saved Employee entity
      */
     @PostMapping()
