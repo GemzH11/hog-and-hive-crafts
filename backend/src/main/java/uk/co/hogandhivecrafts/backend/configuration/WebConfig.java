@@ -24,17 +24,23 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        var mapping = registry.addMapping("/api/**")
+        if (!StringUtils.hasText(allowedOrigins)) {
+            return;
+        }
+
+        String[] origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toArray(String[]::new);
+
+        if (origins.length == 0) {
+            return;
+        }
+
+        registry.addMapping("/api/**")
+                .allowedOrigins(origins)
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
         // .allowCredentials(true); // later, when you do cookies/sessions
-
-        if (StringUtils.hasText(allowedOrigins)) {
-            String[] origins = Arrays.stream(allowedOrigins.split(","))
-                    .map(String::trim)
-                    .filter(s -> !s.isBlank())
-                    .toArray(String[]::new);
-            mapping.allowedOrigins(origins);
-        }
     }
 }
