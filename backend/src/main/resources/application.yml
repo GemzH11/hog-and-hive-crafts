@@ -11,5 +11,4 @@ spring:
       ddl-auto: validate
 app:
   cors:
-    allowed-origins:
-      - ""
+    allowed-origins: []
