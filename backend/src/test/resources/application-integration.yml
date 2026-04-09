@@ -1,5 +1,8 @@
 spring:
   datasource:
-    password: <REPLACE ME>
-    url: <REPLACE ME>
-    username: <REPLACE ME>
+    password: ${INTEGRATION_DB_PASSWORD}
+    url: ${INTEGRATION_DB_URL}
+    username: ${INTEGRATION_DB_USERNAME}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
