@@ -36,7 +36,7 @@ public class EmployeesIT {
     @AfterEach
     void tearDown() {
         // Clear the database after each test to ensure test isolation
-
+        employeeRepository.deleteAll();
     }
 
     @Test
