@@ -1,5 +1,6 @@
 package uk.co.hogandhivecrafts.backend.integration;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 import uk.co.hogandhivecrafts.backend.entity.Employee;
 import uk.co.hogandhivecrafts.backend.repository.EmployeeRepository;
 
@@ -27,10 +29,17 @@ public class EmployeesIT {
     private Integer testEmployeeId;
 
     @BeforeEach
+    @Transactional
     void setUp() {
-        // Clear the database and add a test employee before each test
-        employeeRepository.deleteAll();
+        // Add a test employee before each test
         testEmployeeId = employeeRepository.save(new Employee(null, "Joe", "Blogs")).getId();
+    }
+
+    @AfterEach
+    @Transactional
+    void tearDown() {
+        // Clear the database after each test to ensure test isolation
+        employeeRepository.deleteAll();
     }
 
     @Test

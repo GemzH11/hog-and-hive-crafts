@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.co.hogandhivecrafts.backend.configuration.CorsProperties;
 import uk.co.hogandhivecrafts.backend.entity.Employee;
 import uk.co.hogandhivecrafts.backend.service.EmployeeService;
 import uk.co.hogandhivecrafts.backend.util.DtoMapper;
@@ -18,7 +18,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ActiveProfiles("unit")
 @WebMvcTest(EmployeeController.class)
 @Import(DtoMapper.class)
 public class EmployeeControllerTest {
@@ -28,6 +27,9 @@ public class EmployeeControllerTest {
 
     @MockitoBean
     private EmployeeService employeeService;
+
+    @MockitoBean
+    private CorsProperties corsProperties;
 
     @Test
     void getEmployeeById_employeeExists_returns200AndEmployee() throws Exception {

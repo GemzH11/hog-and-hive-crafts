@@ -1,14 +1,12 @@
+app:
+  cors:
+    allowed-origins: []
 spring:
   application:
     name: backend
   datasource:
-    driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password: password
+    driverClassName: org.postgresql.Driver
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: validate
-app:
-  cors:
-    allowed-origins: []
