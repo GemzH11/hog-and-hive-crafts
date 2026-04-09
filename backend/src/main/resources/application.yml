@@ -1,14 +1,18 @@
+app:
+  cors:
+    allowed-origins:
+      - ${CORS_FRONTEND_ORIGIN:http://localhost:5173}
 spring:
   application:
     name: backend
+  config:
+#    This allows the use of .env files for configuration
+    import: optional:file:.env[.properties]
   datasource:
-    driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password: password
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
   jpa:
+    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: validate
-app:
-  cors:
-    allowed-origins: []
+      ddl-auto: update
