@@ -1,0 +1,59 @@
+Project hog_and_hive_crafts {
+  database_type: "PostgreSQL"
+  Note: "Initial schema for users, OAuth identities, patterns, and external files."
+}
+
+Table users {
+  id uuid [pk, not null, default: `gen_random_uuid()`, note: "Primary key (UUID)"]
+  email text [note: "User email if provided by OAuth"]
+  display_name text
+  avatar_url text [note: "Optional avatar/profile image URL"]
+  created_at timestamptz [not null, default: `now()`, note: "Row creation timestamp"]
+  updated_at timestamptz [not null, default: `now()`, note: "Row update timestamp"]
+
+  Records {
+    "7d2a3c5b-1f3a-4c55-9c74-9f2c0f16f4c1", null, "Admin", "https://example.com/avatars/admin.png", "2025-01-01T12:00:00Z", "2025-01-01T12:00:00Z"
+    "b1f07df6-9b37-46c9-9c6c-0fdd8f7b5a36", null, null, null, "2025-01-01T12:00:00Z", "2025-01-01T12:00:00Z"  
+  }
+}
+
+Table patterns {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null, note: "FK to users.id, cascades on delete"]
+  name text [not null, note: "Pattern name/title"]
+  source text
+  craft_type text
+  notes text
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (user_id, name) [unique, name: "uq_patterns_user_name"]
+  }
+
+  Records {
+    "2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90", "7d2a3c5b-1f3a-4c55-9c74-9f2c0f16f4c1", "Cozy Beanie", "Bought from LoveCrafts", "Knitting", "Try a tighter rib next time.", "2025-01-01T12:00:00Z", "2025-01-01T12:00:00Z" 
+    "9d7b5e4e-1fcb-4d12-8c2c-2b1b5f4c8c25", "b1f07df6-9b37-46c9-9c6c-0fdd8f7b5a36", "Simple Crochet Coaster", null, null, null, "2025-01-01T12:00:00Z", "2025-01-01T12:00:00Z" 
+  }
+}
+
+Table files {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  pattern_id uuid [not null, note: "FK to patterns.id, cascades on delete"]
+  role text [not null, note: "File role/type e.g. thumbnail"]
+  display_name text
+  storage_path text [not null, note: "Relative storage key/path; base path is environment-specific"]
+  description text
+  content_type text [note: "MIME type e.g. image/png"]
+  size_bytes bigint [note: "File size in bytes"]
+  checksum_sha256 text [note: "SHA-256 checksum"]
+  created_at timestamptz [not null, default: `now()`]
+
+  Records {
+    "c84d1f4a-2ef7-4cf3-8b91-3d7f2c2d9c0a", "2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90", "pattern file", "cozy-beanie.pdf", "patterns/2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90/cozy-beanie.pdf", "Main pattern PDF", "application/pdf", "245889", "2c26b46b68ffc68ff99b453c1d30413413422b706483bfa0f98a5e886266e7ae", "2025-01-01T12:00:00Z"  
+    "6b0e8b9d-7cc2-4d31-bf5e-3a5e30d3d2b0", "2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90", "thumbnail", null, "patterns/2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90/cozy-beanie.pdf", null, null, null, null, "2025-01-01T12:00:00Z"  
+  }
+}
+
+Ref: patterns.user_id > users.id [delete: cascade]
+Ref: files.pattern_id > patterns.id [delete: cascade]
