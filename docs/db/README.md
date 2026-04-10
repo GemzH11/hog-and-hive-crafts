@@ -12,11 +12,11 @@ This directory contains **documentation** for the Hog & Hive Crafts database sch
 ## How to update the schema docs
 1. Make schema changes in the Flyway migrations first (or in parallel).
 1. Update `schema.dbml` so it matches the latest migrations.
-1. Regenerate the diagram image from `schema.dbml` using a tool such as `https://dbdiagram.io/`
+1. Regenerate the diagram image from `schema.dbml` using a tool such as [dbdiagram.io](https://dbdiagram.io/)
 1. Commit both the updated `schema.dbml` and the updated image with the migration changes
 
 ## Notes and conventions
 - Primary keys are named `id` and use `UUID`, and default to `gen_random_uuid()`
-- Foreign keys use the `<table>-id` convention (e.g. `user_id`)
+- Foreign keys use the `<table>_id` convention (e.g. `user_id`)
 - Most string columns use `text` unless their length needs to specifically be restricted
 - Timestamps use `timestamptz` and default to `now()`

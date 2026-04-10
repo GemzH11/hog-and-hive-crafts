@@ -1,6 +1,6 @@
 Project hog_and_hive_crafts {
   database_type: "PostgreSQL"
-  Note: "Initial schema for users, OAuth identities, patterns, and external files."
+  Note: "Initial schema for users, patterns, and external files."
 }
 
 Table users {
@@ -28,7 +28,7 @@ Table patterns {
   updated_at timestamptz [not null, default: `now()`]
 
   Indexes {
-    (user_id, name) [unique, name: "uq_patterns_user_name"]
+    (user_id, name) [unique, name: "uq_patterns_user_id_name"]
   }
 
   Records {
@@ -50,7 +50,7 @@ Table files {
   created_at timestamptz [not null, default: `now()`]
 
   Records {
-    "c84d1f4a-2ef7-4cf3-8b91-3d7f2c2d9c0a", "2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90", "pattern file", "cozy-beanie.pdf", "patterns/2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90/cozy-beanie.pdf", "Main pattern PDF", "application/pdf", "245889", "2c26b46b68ffc68ff99b453c1d30413413422b706483bfa0f98a5e886266e7ae", "2025-01-01T12:00:00Z"  
+    "c84d1f4a-2ef7-4cf3-8b91-3d7f2c2d9c0a", "2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90", "pattern file", "cozy-beanie.pdf", "patterns/2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90/cozy-beanie.pdf", "Main pattern PDF", "application/pdf", 245889, "2c26b46b68ffc68ff99b453c1d30413413422b706483bfa0f98a5e886266e7ae", "2025-01-01T12:00:00Z"
     "6b0e8b9d-7cc2-4d31-bf5e-3a5e30d3d2b0", "2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90", "thumbnail", null, "patterns/2f5a0b22-52c0-4f9e-94a6-7fd3c4f1df90/cozy-beanie.pdf", null, null, null, null, "2025-01-01T12:00:00Z"  
   }
 }
