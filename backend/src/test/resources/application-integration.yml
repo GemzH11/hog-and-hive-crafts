@@ -3,6 +3,3 @@ spring:
     password: ${INTEGRATION_DB_PASSWORD}
     url: ${INTEGRATION_DB_URL}
     username: ${INTEGRATION_DB_USERNAME}
-  jpa:
-    hibernate:
-      ddl-auto: create-drop

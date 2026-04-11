@@ -12,10 +12,9 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
+  flyway:
+    enabled: true
+    validate-on-migrate: true
   jpa:
-    defer-datasource-initialization: true
     hibernate:
       ddl-auto: none
-  sql:
-    init:
-      mode: always

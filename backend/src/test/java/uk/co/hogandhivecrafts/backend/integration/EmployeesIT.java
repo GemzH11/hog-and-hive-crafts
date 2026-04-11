@@ -1,6 +1,5 @@
 package uk.co.hogandhivecrafts.backend.integration;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +28,9 @@ public class EmployeesIT {
 
     @BeforeEach
     void setUp() {
-        // Add a test employee before each test
-        testEmployeeId = employeeRepository.save(new Employee(null, "Joe", "Blogs")).getId();
-    }
-
-    @AfterEach
-    void tearDown() {
-        // Clear the database after each test to ensure test isolation
+        // Clear the database and add a test employee before each test
         employeeRepository.deleteAll();
+        testEmployeeId = employeeRepository.save(new Employee(null, "Joe", "Blogs")).getId();
     }
 
     @Test
