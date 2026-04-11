@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-CREATE TABLE IF NOT EXISTS "users" (
+CREATE TABLE "users" (
     "id" UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     "email" TEXT,
     "display_name" TEXT,
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS "patterns" (
+CREATE TABLE "patterns" (
     "id" UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "name" TEXT NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS "patterns" (
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS "files" (
+CREATE TABLE "files" (
     "id" UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     "pattern_id" UUID NOT NULL,
     "role" TEXT NOT NULL,
