@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 
 @ActiveProfiles("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class FlywaySmokeTest {
+public class FlywayIT {
 
     @Autowired
     DataSource dataSource;
