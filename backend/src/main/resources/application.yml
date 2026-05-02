@@ -7,11 +7,11 @@ spring:
     name: backend
   config:
 #    This allows the use of .env files for configuration
-    import: optional:file:.env[.properties]
+    import: optional:file:../../../../.env[.properties]
   datasource:
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD:changeme}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/hogandhivecrafts_db}
+    username: ${SPRING_DATASOURCE_USERNAME:user}
   flyway:
     enabled: true
     validate-on-migrate: true

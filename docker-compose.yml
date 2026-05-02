@@ -1,0 +1,38 @@
+services:
+    db:
+        container_name: hogandhivecrafts_db
+        image: postgres:18-alpine
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        ports:
+            - "5432:5432"
+        restart: always
+        volumes:
+            - db_data:/var/lib/postgresql   
+        healthcheck:
+        # Tells pgAdmin to wait until DB is ready before starting
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+    pgadmin:
+        container_name: hogandhivecrafts_pgadmin
+        image: dpage/pgadmin4:latest
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_DEFAULT_EMAIL}
+            PGADMIN_DEFAULT_PASSWORD: ${PG_ADMIN_DEFAULT_PASSWORD}
+        ports:
+            - "5050:80"
+        restart: always   
+        depends_on:
+        # Ensures DB starts before pgAdmin
+            db:
+                condition: service_healthy
+        volumes:
+            - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+    db_data:
+    pgadmin_data:
