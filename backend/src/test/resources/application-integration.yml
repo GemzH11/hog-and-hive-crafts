@@ -1,5 +1,5 @@
 spring:
   datasource:
-    password: ${INTEGRATION_DB_PASSWORD}
-    url: ${INTEGRATION_DB_URL}
-    username: ${INTEGRATION_DB_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD:changeme}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/hogandhivecrafts_db}
+    username: ${SPRING_DATASOURCE_USERNAME:user}
