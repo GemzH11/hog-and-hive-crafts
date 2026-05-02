@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.5</version>
+        <version>4.0.6</version>
         <relativePath/>
     </parent>
     <groupId>uk.co.hogandhivecrafts</groupId>
@@ -15,8 +15,6 @@
     <description>Backend API for Hog &amp; Hive Crafts</description>
     <properties>
         <java.version>21</java.version>
-        <skipUnitTests>false</skipUnitTests>
-        <skipITs>false</skipITs>
     </properties>
     <dependencies>
         <dependency>
@@ -98,8 +96,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <skipTests>${skipUnitTests}</skipTests>
-                    <skipTests>${skipTests}</skipTests>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
@@ -117,8 +113,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <skipTests>${skipITs}</skipTests>
-                    <skipTests>${skipTests}</skipTests>
                     <includes>
                         <include>**/*IT.java</include>
                     </includes>
@@ -126,18 +120,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>unit</id>
-            <properties>
-                <skipITs>true</skipITs>
-            </properties>
-        </profile>
-        <profile>
-            <id>integration</id>
-            <properties>
-                <skipUnitTests>true</skipUnitTests>
-            </properties>
-        </profile>
-    </profiles>
 </project>
