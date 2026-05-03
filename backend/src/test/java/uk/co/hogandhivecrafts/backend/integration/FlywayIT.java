@@ -6,11 +6,25 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
-@ActiveProfiles("integration")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@Testcontainers
 public class FlywayIT {
+
+    @Container
+    static PostgreSQLContainer pg = new PostgreSQLContainer("postgres:18-alpine").withDatabaseName("testdb").withUsername("testuser").withPassword("testpassword");
+
+    @DynamicPropertySource
+    static void props(DynamicPropertyRegistry r) {
+        r.add("spring.datasource.url", pg::getJdbcUrl);
+        r.add("spring.datasource.username", pg::getUsername);
+        r.add("spring.datasource.password", pg::getPassword);
+    }
 
     @Autowired
     Flyway flyway;
@@ -18,12 +32,11 @@ public class FlywayIT {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    private final String SELECT_FLYWAY_HISTORY_SUCCESS_COUNT = "SELECT count(*) FROM flyway_schema_history WHERE success = true";
-
     @Test
     void migrationsApplied() {
+        String selectFlywayHistorySuccessCount = "SELECT count(*) FROM " + "flyway_schema_history WHERE success = true";
         Integer appliedMigrations = flyway.info().applied().length;
-        Integer appliedRowCount = jdbcTemplate.queryForObject(SELECT_FLYWAY_HISTORY_SUCCESS_COUNT, Integer.class);
+        Integer appliedRowCount = jdbcTemplate.queryForObject(selectFlywayHistorySuccessCount, Integer.class);
         Assertions.assertThat(appliedMigrations).isGreaterThan(0);
         Assertions.assertThat(appliedRowCount).isGreaterThan(0);
         Assertions.assertThat(appliedMigrations).isEqualTo(appliedRowCount);
