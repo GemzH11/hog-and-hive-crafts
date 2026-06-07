@@ -2,11 +2,13 @@ app:
   cors:
     allowed-origins:
       - ${CORS_FRONTEND_ORIGIN:http://localhost:5173}
+  pagination:
+    default-page-size: 20
 spring:
   application:
     name: backend
   config:
-#    This allows the use of .env files for configuration
+    #    This allows the use of .env files for configuration
     import: optional:file:../../../../.env[.properties]
   datasource:
     password: ${SPRING_DATASOURCE_PASSWORD:changeme}
