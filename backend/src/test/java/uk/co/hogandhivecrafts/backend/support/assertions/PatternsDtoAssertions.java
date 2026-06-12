@@ -11,11 +11,23 @@ public final class PatternsDtoAssertions {
         // prevent instantiation
     }
 
+    /**
+     * Helper method to assert two GetAllPatternRequest objects are equal
+     *
+     * @param actual   the GetAllPatternRequest object built in the test
+     * @param expected the GetAllPatternRequest object that we are expecting
+     */
     public static void assertGetAllPatternsRequestEquals(GetAllPatternsRequest actual, GetAllPatternsRequest expected) {
         assertThat(actual.page()).isEqualTo(expected.page());
         assertThat(actual.size()).isEqualTo(expected.size());
     }
 
+    /**
+     * Helper method to assert two GetAllPatternsResponse objects are equal
+     *
+     * @param actual   the GetAllPatternsResponse object built in the test
+     * @param expected the GetAllPatternsResponse object that we are expecting
+     */
     public static void assertGetAllPatternsResponseEquals(GetAllPatternsResponse actual, GetAllPatternsResponse expected) {
         assertThat(actual.patterns()).hasSameSizeAs(expected.patterns());
         assertThat(actual.patterns()).containsExactlyElementsOf(expected.patterns());
@@ -25,6 +37,12 @@ public final class PatternsDtoAssertions {
         assertThat(actual.size()).isEqualTo(expected.size());
     }
 
+    /**
+     * Helper method to assert two GetSinglePatternResponse objects are equal
+     *
+     * @param actual   the GetSinglePatternResponse object built in the test
+     * @param expected the GetSinglePatternResponse object that we are expecting
+     */
     public static void assertGetSinglePatternResponseEquals(GetSinglePatternResponse actual, GetSinglePatternResponse expected) {
         assertThat(actual.id()).isEqualTo(expected.id());
         assertThat(actual.name()).isEqualTo(expected.name());

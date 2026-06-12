@@ -28,9 +28,10 @@ public class PatternService {
     private final PaginationProperties paginationProperties;
 
     /**
-     * Fetches all patterns
+     * Fetches all patterns using optional pagination parameters provided in the request
      *
-     * @return List of patterns
+     * @param request the GetAllPatternsRequest containing pagination parameters (page number and page size)
+     * @return a GetAllPatternsResponse containing a paginated list of patterns and pagination metadata
      */
     public GetAllPatternsResponse getAllPatterns(GetAllPatternsRequest request) {
 
@@ -40,6 +41,12 @@ public class PatternService {
         return patternMapper.toGetAllPatternsResponse(patterns);
     }
 
+    /**
+     * Converts the GetAllPatternsRequest into a Pageable object, applying default pagination values if not provided
+     *
+     * @param request the GetAllPatternsRequest containing pagination parameters (page number and page size)
+     * @return a Pageable object constructed from the request parameters, with defaults applied as necessary
+     */
     private Pageable toPageable(GetAllPatternsRequest request) {
         int page = request.page() == null ? 0 : request.page();
         int size = request.size() == null ? paginationProperties.defaultPageSize() : request.size();

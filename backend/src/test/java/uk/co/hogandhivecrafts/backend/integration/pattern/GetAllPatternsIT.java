@@ -59,7 +59,7 @@ public class GetAllPatternsIT extends AbstractIT {
 
     @Test
     void getAllPatterns_patternsExist_returns200AndPagedResponse() {
-        User user = UserITData.buildMinimal(0);
+        User user = UserITData.buildMinimal();
         Pattern pattern0 = PatternITData.buildDefault(0, user);
         Pattern pattern1 = PatternITData.buildDefault(1, user);
         File file1 = FileITData.buildMinimal(0, pattern0);
@@ -88,7 +88,7 @@ public class GetAllPatternsIT extends AbstractIT {
 
     @Test
     void getAllPatterns_paginationApplied_returnsRequestedPage() {
-        User user = UserITData.buildMinimal(0);
+        User user = UserITData.buildMinimal();
         List<Pattern> patterns = PatternITData.buildList(25, user);
         userRepository.save(user);
         patterns.forEach(patternRepository::save);
@@ -107,7 +107,7 @@ public class GetAllPatternsIT extends AbstractIT {
 
     @Test
     void getAllPatterns_noRequestParams_usesDefaults() {
-        User user = UserITData.buildMinimal(0);
+        User user = UserITData.buildMinimal();
         List<Pattern> patterns = PatternITData.buildList(25, user);
         userRepository.save(user);
         patterns.forEach(patternRepository::save);

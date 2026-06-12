@@ -36,9 +36,16 @@ public class EntityTestData {
         // prevent instantiation
     }
 
-    public static User buildDefaultUser(UUID UserId, List<UUID> patternIds) {
+    /**
+     * Builds a default User entity with all fields populated
+     *
+     * @param userId     the ID to use for the user
+     * @param patternIds the pattern IDs to associate with the user
+     * @return a fully-populated User entity with default properties
+     */
+    public static User buildDefaultUser(UUID userId, List<UUID> patternIds) {
         User user = new User();
-        user.setId(UserId);
+        user.setId(userId);
         user.setEmail(USER_EMAIL);
         user.setDisplayName(USER_DISPLAY_NAME);
         user.setAvatarUrl(USER_AVATAR_URL);
@@ -50,20 +57,34 @@ public class EntityTestData {
         return user;
     }
 
+    /**
+     * Builds a default User entity using a default set of IDs
+     *
+     * @return a fully-populated User entity with default properties
+     */
     public static User buildDefaultUser() {
         return buildDefaultUser(USER_ID, List.of(PATTERN_ID));
     }
 
+    /**
+     * Builds a simple User entity containing only an ID
+     *
+     * @param userId the ID to use for the user
+     * @return a minimal User entity with only an ID
+     */
     public static User buildSimpleUser(UUID userId) {
         User user = new User();
         user.setId(userId);
         return user;
     }
 
-    public static User buildSimpleUser() {
-        return buildSimpleUser(USER_ID);
-    }
-
+    /**
+     * Builds a default File entity with all fields populated
+     *
+     * @param fileId    the ID to use for the file
+     * @param patternId the ID of the pattern to associate with the file
+     * @return a fully-populated File entity with default properties
+     */
     public static File buildDefaultFile(UUID fileId, UUID patternId) {
         File file = new File();
         file.setId(fileId);
@@ -82,20 +103,35 @@ public class EntityTestData {
         return file;
     }
 
+    /**
+     * Builds a default File entity using a default set of IDs
+     *
+     * @return a fully-populated File entity with default properties
+     */
     public static File buildDefaultFile() {
         return buildDefaultFile(FILE_ID, PATTERN_ID);
     }
 
+    /**
+     * Builds a simple File entity containing only an ID
+     *
+     * @param fileId the ID to use for the file
+     * @return a minimal File entity with only an ID
+     */
     public static File buildSimpleFile(UUID fileId) {
         File file = new File();
         file.setId(fileId);
         return file;
     }
 
-    public static File buildSimpleFile() {
-        return buildSimpleFile(FILE_ID);
-    }
-
+    /**
+     * Builds a default Pattern entity with all fields populated
+     *
+     * @param patternId the ID to use for the pattern
+     * @param fileIds   the file IDs to associate with the pattern
+     * @param userId    the ID of the user to associate with the pattern
+     * @return a fully-populated Pattern entity with default properties
+     */
     public static Pattern buildDefaultPattern(UUID patternId, List<UUID> fileIds, UUID userId) {
         Pattern pattern = new Pattern();
         pattern.setId(patternId);
@@ -113,17 +149,24 @@ public class EntityTestData {
         return pattern;
     }
 
+    /**
+     * Builds a default Pattern entity using a default set of IDs
+     *
+     * @return a fully-populated Pattern entity with default properties
+     */
     public static Pattern buildDefaultPattern() {
         return buildDefaultPattern(PATTERN_ID, List.of(FILE_ID), USER_ID);
     }
 
+    /**
+     * Builds a simple Pattern entity containing only an ID
+     *
+     * @param patternId the ID to use for the pattern
+     * @return a minimal Pattern entity with only an ID
+     */
     public static Pattern buildSimplePattern(UUID patternId) {
         Pattern pattern = new Pattern();
         pattern.setId(patternId);
         return pattern;
-    }
-
-    public static Pattern buildSimplePattern() {
-        return buildSimplePattern(PATTERN_ID);
     }
 }

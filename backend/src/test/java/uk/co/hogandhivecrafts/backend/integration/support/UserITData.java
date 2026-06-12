@@ -11,6 +11,13 @@ public class UserITData {
         // prevent instantiation
     }
 
+    /**
+     * Builds a default User entity with all fields populated,
+     * using the provided index to generate unique values for each field.
+     *
+     * @param index the index to allow uniquely identifying the generated user properties (e.g. user1, user2, etc.)
+     * @return a fully-populated User entity with default properties based on the provided index.
+     */
     public static User buildDefault(int index) {
         User user = new User();
         user.setEmail(String.format(USER_EMAIL, index));
@@ -19,7 +26,13 @@ public class UserITData {
         return user;
     }
 
-    public static User buildMinimal(int index) {
+    /**
+     * Builds a minimal User entity with only the required fields populated,
+     * using the provided index to generate unique values for each field.
+     *
+     * @return a minimally-populated User entity with required properties based on the provided index.
+     */
+    public static User buildMinimal() {
         return new User();
     }
 }

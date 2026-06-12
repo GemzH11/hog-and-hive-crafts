@@ -23,9 +23,10 @@ public class PatternController {
     private final PatternService patternService;
 
     /**
-     * Fetches all patterns
+     * Fetches all patterns using optional pagination parameters provided in the request,
+     * and returns a paginated list of patterns in the response
      *
-     * @return List of patterns
+     * @return list of paginated patterns
      */
     @GetMapping("/v1")
     public ResponseEntity<GetAllPatternsResponse> getAllPatterns(@Valid GetAllPatternsRequest request) {

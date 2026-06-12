@@ -16,6 +16,15 @@ public class FileITData {
         // prevent instantiation
     }
 
+    /**
+     * Builds a default File entity with all fields populated,
+     * using the provided index to generate unique values for each field.
+     *
+     * @param index   the index to allow uniquely identifying the generated file properties (e.g. role1, role2, etc.)
+     * @param pattern The pattern object that the file should be associated with.
+     *                This allows the generated file to be linked to a specific pattern in the test data setup.
+     * @return a fully-populated File entity with default properties based on the provided index and associated with the given pattern.
+     */
     public static File buildDefault(int index, Pattern pattern) {
         File file = new File();
         file.setRole(String.format(FILE_ROLE, index));
@@ -30,6 +39,15 @@ public class FileITData {
 
     }
 
+    /**
+     * Builds a minimal File entity with only the required fields populated,
+     * using the provided index to generate unique values for each field.
+     *
+     * @param index   the index to allow uniquely identifying the generated file properties (e.g. role1, role2, etc.)
+     * @param pattern The pattern object that the file should be associated with.
+     *                This allows the generated file to be linked to a specific pattern in the test data setup.
+     * @return a minimally-populated File entity with required properties based on the provided index and associated with the given pattern.
+     */
     public static File buildMinimal(int index, Pattern pattern) {
         File file = new File();
         file.setRole(String.format(FILE_ROLE, index));

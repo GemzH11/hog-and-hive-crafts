@@ -22,7 +22,6 @@ import uk.co.hogandhivecrafts.backend.service.PatternService;
 import uk.co.hogandhivecrafts.backend.support.assertions.PatternsDtoAssertions;
 import uk.co.hogandhivecrafts.backend.support.testdata.PatternsDtoTestData;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,7 +48,8 @@ public class PatternControllerTest {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
-        GetAllPatternsResponse actual = parseResponse(result, GetAllPatternsResponse.class);
+        GetAllPatternsResponse actual = objectMapper.readValue(result.getResponse()
+                .getContentAsString(), GetAllPatternsResponse.class);
 
         PatternsDtoAssertions.assertGetAllPatternsResponseEquals(actual, expected);
     }
@@ -67,7 +67,8 @@ public class PatternControllerTest {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
-        GetAllPatternsResponse actual = parseResponse(result, GetAllPatternsResponse.class);
+        GetAllPatternsResponse actual = objectMapper.readValue(result.getResponse()
+                .getContentAsString(), GetAllPatternsResponse.class);
 
         PatternsDtoAssertions.assertGetAllPatternsResponseEquals(actual, expected);
     }
@@ -135,9 +136,4 @@ public class PatternControllerTest {
         PatternsDtoAssertions.assertGetAllPatternsRequestEquals(request,
                 new GetAllPatternsRequest(null, null));
     }
-
-    private <T> T parseResponse(MvcResult result, Class<T> objectType) throws UnsupportedEncodingException {
-        return objectMapper.readValue(result.getResponse().getContentAsString(), objectType);
-    }
-
 }
