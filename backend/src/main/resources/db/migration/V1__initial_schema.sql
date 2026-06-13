@@ -30,7 +30,8 @@ CREATE TABLE "files" (
     "content_type" TEXT,
     "size_bytes" BIGINT,
     "checksum_sha256" TEXT,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT now()
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE UNIQUE INDEX "uq_patterns_user_id_name" ON "patterns" ("user_id", "name");

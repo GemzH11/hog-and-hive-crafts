@@ -1,5 +1,6 @@
 package uk.co.hogandhivecrafts.backend.configuration;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.HandlerTypePredicate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -24,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
+    public void addCorsMappings(@NonNull CorsRegistry registry) {
         List<String> origins = cors.allowedOrigins();
         if (origins == null || origins.isEmpty()) {
             return;
