@@ -101,39 +101,60 @@ public class PatternControllerTest {
     }
 
     @Test
+    void getAllPatterns_invalidSortDirection_returns400() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/patterns/v1").param("sortDirection", "INVALID"))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]")
+                        .value("Invalid value for 'sortDirection': INVALID. Allowed values: ASC, DESC"));
+    }
+
+    @Test
+    void getAllPatterns_invalidPatternSortField_returns400() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/patterns/v1").param("sortField", "INVALID"))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]")
+                        .value("Invalid value for 'sortField': INVALID. Allowed values: ID, NAME, CREATED_AT, UPDATED_AT"));
+    }
+
+    @Test
     void getAllPatterns_withRequestParams_passesParamsToService() throws Exception {
-        GetAllPatternsResponse expected = PatternsDtoTestData.buildDefaultGetAllPatternsResponse();
+        GetAllPatternsResponse response = PatternsDtoTestData.buildDefaultGetAllPatternsResponse();
+        GetAllPatternsRequest expected = PatternsDtoTestData.buildDefaultGetAllPatternsRequest();
         ArgumentCaptor<GetAllPatternsRequest> captor = ArgumentCaptor.forClass(GetAllPatternsRequest.class);
 
         BDDMockito.given(patternService.getAllPatterns(ArgumentMatchers.any(GetAllPatternsRequest.class)))
-                .willReturn(expected);
+                .willReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/patterns/v1")
                         .param("page", "1")
-                        .param("size", "10"))
+                        .param("size", "10")
+                        .param("sortField", "NAME")
+                        .param("sortDirection", "DESC"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         Mockito.verify(patternService).getAllPatterns(captor.capture());
         GetAllPatternsRequest actual = captor.getValue();
 
-        PatternsDtoAssertions.assertGetAllPatternsRequestEquals(actual, new GetAllPatternsRequest(1, 10));
+        PatternsDtoAssertions.assertGetAllPatternsRequestEquals(actual, expected);
     }
 
     @Test
     void getAllPatterns_noRequestParams_usesDefaults() throws Exception {
-        GetAllPatternsResponse expected = PatternsDtoTestData.buildDefaultGetAllPatternsResponse();
+        GetAllPatternsResponse response = PatternsDtoTestData.buildDefaultGetAllPatternsResponse();
+        GetAllPatternsRequest expected = PatternsDtoTestData.buildEmptyGetAllPatternsRequest();
         ArgumentCaptor<GetAllPatternsRequest> captor = ArgumentCaptor.forClass(GetAllPatternsRequest.class);
 
         BDDMockito.given(patternService.getAllPatterns(ArgumentMatchers.any(GetAllPatternsRequest.class)))
-                .willReturn(expected);
+                .willReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/patterns/v1"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         Mockito.verify(patternService).getAllPatterns(captor.capture());
-        GetAllPatternsRequest request = captor.getValue();
+        GetAllPatternsRequest actual = captor.getValue();
 
-        PatternsDtoAssertions.assertGetAllPatternsRequestEquals(request,
-                new GetAllPatternsRequest(null, null));
+        PatternsDtoAssertions.assertGetAllPatternsRequestEquals(actual, expected);
     }
 }

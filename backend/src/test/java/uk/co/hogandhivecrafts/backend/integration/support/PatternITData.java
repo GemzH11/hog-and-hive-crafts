@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PatternITData {
-    private static final String PATTERN_NAME = "pattern%s";
-    private static final String PATTERN_SOURCE = "source%s";
-    private static final String PATTERN_CRAFT_TYPE = "craft%s";
-    private static final String PATTERN_NOTES = "notes%s";
+    private static final String PATTERN_NAME = "pattern%03d";
+    private static final String PATTERN_SOURCE = "source%03d";
+    private static final String PATTERN_CRAFT_TYPE = "craft%03d";
+    private static final String PATTERN_NOTES = "notes%03d";
 
     private PatternITData() {
         // prevent instantiation

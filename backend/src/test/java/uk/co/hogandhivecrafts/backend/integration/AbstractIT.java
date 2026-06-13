@@ -11,7 +11,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class AbstractIT {
     @Container
-    static PostgreSQLContainer pg = new PostgreSQLContainer("postgres:18-alpine")
+    final static PostgreSQLContainer pg = new PostgreSQLContainer("postgres:18-alpine")
             .withDatabaseName("testdb")
             .withUsername("testuser")
             .withPassword("testpassword");

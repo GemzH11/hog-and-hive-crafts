@@ -3,9 +3,9 @@ package uk.co.hogandhivecrafts.backend.integration.support;
 import uk.co.hogandhivecrafts.backend.entity.User;
 
 public class UserITData {
-    private static final String USER_EMAIL = "test%s@example.com";
-    private static final String USER_DISPLAY_NAME = "Test user%s";
-    private static final String USER_AVATAR_URL = "avatar%s.png";
+    private static final String USER_EMAIL = "test%03d@example.com";
+    private static final String USER_DISPLAY_NAME = "Test user%03d";
+    private static final String USER_AVATAR_URL = "avatar%03d.png";
 
     private UserITData() {
         // prevent instantiation

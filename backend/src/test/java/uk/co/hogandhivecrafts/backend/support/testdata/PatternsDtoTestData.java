@@ -1,7 +1,10 @@
 package uk.co.hogandhivecrafts.backend.support.testdata;
 
+import org.springframework.data.domain.Sort;
+import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
 import uk.co.hogandhivecrafts.backend.dto.GetSinglePatternResponse;
+import uk.co.hogandhivecrafts.backend.dto.PatternSortField;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
@@ -11,6 +14,8 @@ import java.util.UUID;
 public class PatternsDtoTestData {
     private static final Integer PAGE = 1;
     private static final Integer SIZE = 10;
+    private static final PatternSortField PATTERN_SORT_FIELD = PatternSortField.NAME;
+    private static final Sort.Direction SORT_DIRECTION = Sort.Direction.DESC;
     private static final Integer TOTAL_ELEMENTS = 45;
     private static final Integer TOTAL_PAGES = 5;
     private static final UUID PATTERN_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
@@ -26,6 +31,24 @@ public class PatternsDtoTestData {
 
     private PatternsDtoTestData() {
         // prevent instantiation
+    }
+
+    /**
+     * Builds a default GetAllPatternsRequest object with all fields populated
+     *
+     * @return a fully-populated GetAllPatternsRequest object with default properties
+     */
+    public static GetAllPatternsRequest buildDefaultGetAllPatternsRequest() {
+        return new GetAllPatternsRequest(PAGE, SIZE, PATTERN_SORT_FIELD, SORT_DIRECTION);
+    }
+
+    /**
+     * Builds an empty GetAllPatternsRequest object
+     *
+     * @return an empty GetAllPatternsRequest object
+     */
+    public static GetAllPatternsRequest buildEmptyGetAllPatternsRequest() {
+        return new GetAllPatternsRequest(null, null, null, null);
     }
 
     /**

@@ -1,17 +1,21 @@
 package uk.co.hogandhivecrafts.backend.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.util.HtmlUtils;
+import uk.co.hogandhivecrafts.backend.dto.PatternSortField;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -30,7 +34,7 @@ public class GlobalExceptionHandler {
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .map(this::formatFieldError)
                 .toList();
 
         ErrorResponse error = new ErrorResponse(("Invalid request"), status.value(), path, errors);
@@ -53,6 +57,26 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(ex.getMessage(), status.value(), path, new ArrayList<>());
 
         return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(error);
+    }
+
+    /**
+     * Formats a FieldError into a user-friendly error message.
+     *
+     * @param fieldError The object containing the error
+     * @return a formatted error string
+     */
+    private String formatFieldError(FieldError fieldError) {
+        return switch (fieldError.getField()) {
+            case "sortField" -> String.format("Invalid value for 'sortField': %s. Allowed values: %s",
+                    fieldError.getRejectedValue(), Arrays.stream(PatternSortField.values())
+                            .map(Enum::name)
+                            .collect(Collectors.joining(", ")));
+            case "sortDirection" -> String.format("Invalid value for 'sortDirection': %s. Allowed values: %s",
+                    fieldError.getRejectedValue(), Arrays.stream(Sort.Direction.values())
+                            .map(Enum::name)
+                            .collect(Collectors.joining(", ")));
+            default -> fieldError.getDefaultMessage();
+        };
     }
 
     public record ErrorResponse(String message, int status, String path, List<String> errors) {

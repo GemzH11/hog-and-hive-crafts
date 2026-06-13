@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.co.hogandhivecrafts.backend.configuration.PaginationProperties;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
+import uk.co.hogandhivecrafts.backend.dto.PatternSortField;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.mapper.PatternMapper;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
@@ -50,7 +52,16 @@ public class PatternService {
     private Pageable toPageable(GetAllPatternsRequest request) {
         int page = request.page() == null ? 0 : request.page();
         int size = request.size() == null ? paginationProperties.defaultPageSize() : request.size();
+        Sort.Direction direction = request.sortDirection() == null ? paginationProperties.defaultSortDirection() : request.sortDirection();
+        PatternSortField sortField = request.sortField() == null ? paginationProperties.defaultPatternSortField() : request.sortField();
+        Sort sort;
 
-        return PageRequest.of(page, size);
+        if (sortField == PatternSortField.ID) {
+            sort = Sort.by(direction, sortField.getValue());
+        } else {
+            sort = Sort.by(direction, sortField.getValue()).and(Sort.by(direction, "id"));
+        }
+
+        return PageRequest.of(page, size, sort);
     }
 }

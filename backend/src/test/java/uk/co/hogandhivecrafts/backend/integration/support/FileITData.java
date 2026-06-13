@@ -5,10 +5,10 @@ import uk.co.hogandhivecrafts.backend.entity.Pattern;
 
 public class FileITData {
     private static final String FILE_ROLE = "role%s";
-    private static final String FILE_DISPLAY_NAME = "file%s";
-    private static final String FILE_STORAGE_PATH = "/tmp/file%s.pdf";
-    private static final String FILE_DESCRIPTION = "description%s";
-    private static final String FILE_CONTENT_TYPE = "type%s";
+    private static final String FILE_DISPLAY_NAME = "file%03d";
+    private static final String FILE_STORAGE_PATH = "/tmp/file%03d.pdf";
+    private static final String FILE_DESCRIPTION = "description%03d";
+    private static final String FILE_CONTENT_TYPE = "type%03d";
     private static final Long FILE_SIZE = 123L;
     private static final String FILE_CHECKSUM = "abc123";
 
