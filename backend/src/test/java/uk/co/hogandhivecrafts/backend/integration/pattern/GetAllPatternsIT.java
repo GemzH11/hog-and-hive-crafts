@@ -113,9 +113,9 @@ public class GetAllPatternsIT extends AbstractIT {
                 .body("size", Matchers.is(10))
                 .extract().as(GetAllPatternsResponse.class);
 
-        List<OffsetDateTime> actual =
-                response.patterns().stream().map(GetSinglePatternResponse::createdAt).toList();
-        List<OffsetDateTime> expected = actual.stream().sorted(Comparator.reverseOrder()).toList();
+        List<String> actual =
+                response.patterns().stream().map(GetSinglePatternResponse::name).toList();
+        List<String> expected = actual.stream().sorted(Comparator.reverseOrder()).toList();
         Assertions.assertThat(actual).isEqualTo(expected);
     }
 
@@ -136,9 +136,9 @@ public class GetAllPatternsIT extends AbstractIT {
                 .body("size", Matchers.is(20))
                 .extract().as(GetAllPatternsResponse.class);
 
-        List<String> actual =
-                response.patterns().stream().map(GetSinglePatternResponse::name).toList();
-        List<String> expected = actual.stream().sorted().toList();
+        List<OffsetDateTime> actual =
+                response.patterns().stream().map(GetSinglePatternResponse::createdAt).toList();
+        List<OffsetDateTime> expected = actual.stream().sorted().toList();
         Assertions.assertThat(actual).isEqualTo(expected);
     }
 
