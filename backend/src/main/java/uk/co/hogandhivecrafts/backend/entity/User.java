@@ -27,7 +27,7 @@ public class User {
     @ToString.Include
     private String email;
 
-    @Column(name = "display_name")
+    @Column(name = "display_name", nullable = false)
     @ToString.Include
     private String displayName;
 

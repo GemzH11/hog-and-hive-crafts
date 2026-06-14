@@ -2,6 +2,7 @@ package uk.co.hogandhivecrafts.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import uk.co.hogandhivecrafts.backend.model.CraftType;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -36,9 +37,9 @@ public class Pattern {
     @ToString.Include
     private String source;
 
-    @Column(name = "craft_type")
+    @Column(name = "craft_type", nullable = false)
     @ToString.Include
-    private String craftType;
+    private CraftType craftType;
 
     @Column(name = "notes")
     @ToString.Include

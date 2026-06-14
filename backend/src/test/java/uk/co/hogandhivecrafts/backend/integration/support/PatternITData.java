@@ -2,6 +2,7 @@ package uk.co.hogandhivecrafts.backend.integration.support;
 
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.entity.User;
+import uk.co.hogandhivecrafts.backend.model.CraftType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 public class PatternITData {
     private static final String PATTERN_NAME = "pattern%03d";
     private static final String PATTERN_SOURCE = "source%03d";
-    private static final String PATTERN_CRAFT_TYPE = "craft%03d";
+    private static final CraftType PATTERN_CRAFT_TYPE = CraftType.OTHER;
     private static final String PATTERN_NOTES = "notes%03d";
 
     private PatternITData() {
@@ -29,7 +30,7 @@ public class PatternITData {
         Pattern pattern = new Pattern();
         pattern.setName(String.format(PATTERN_NAME, index));
         pattern.setSource(String.format(PATTERN_SOURCE, index));
-        pattern.setCraftType(String.format(PATTERN_CRAFT_TYPE, index));
+        pattern.setCraftType(PATTERN_CRAFT_TYPE);
         pattern.setNotes(String.format(PATTERN_NOTES, index));
         pattern.setUser(user);
         return pattern;
@@ -47,6 +48,7 @@ public class PatternITData {
     public static Pattern buildMinimal(int index, User user) {
         Pattern pattern = new Pattern();
         pattern.setName(String.format(PATTERN_NAME, index));
+        pattern.setCraftType(PATTERN_CRAFT_TYPE);
         pattern.setUser(user);
         return pattern;
     }

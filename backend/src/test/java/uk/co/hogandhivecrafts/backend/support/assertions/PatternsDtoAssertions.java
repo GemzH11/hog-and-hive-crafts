@@ -1,8 +1,8 @@
 package uk.co.hogandhivecrafts.backend.support.assertions;
 
+import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsItem;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.GetSinglePatternResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,20 +38,17 @@ public final class PatternsDtoAssertions {
     }
 
     /**
-     * Helper method to assert two GetSinglePatternResponse objects are equal
+     * Helper method to assert two GetAllPatternsItem objects are equal
      *
-     * @param actual   the GetSinglePatternResponse object built in the test
-     * @param expected the GetSinglePatternResponse object that we are expecting
+     * @param actual   the GetAllPatternsItem object built in the test
+     * @param expected the GetAllPatternsItem object that we are expecting
      */
-    public static void assertGetSinglePatternResponseEquals(GetSinglePatternResponse actual, GetSinglePatternResponse expected) {
+    public static void assertGetAllPatternsItemEquals(GetAllPatternsItem actual, GetAllPatternsItem expected) {
         assertThat(actual.id()).isEqualTo(expected.id());
         assertThat(actual.name()).isEqualTo(expected.name());
-        assertThat(actual.source()).isEqualTo(expected.source());
         assertThat(actual.craftType()).isEqualTo(expected.craftType());
-        assertThat(actual.notes()).isEqualTo(expected.notes());
         assertThat(actual.createdAt()).isEqualTo(expected.createdAt());
         assertThat(actual.updatedAt()).isEqualTo(expected.updatedAt());
-        assertThat(actual.userId()).isEqualTo(expected.userId());
         assertThat(actual.fileIds().size()).isEqualTo(expected.fileIds().size());
         assertThat(actual.fileIds()).containsExactlyElementsOf(expected.fileIds());
     }

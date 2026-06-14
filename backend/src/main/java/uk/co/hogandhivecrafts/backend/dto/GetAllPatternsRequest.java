@@ -3,6 +3,7 @@ package uk.co.hogandhivecrafts.backend.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Sort;
+import uk.co.hogandhivecrafts.backend.model.PatternSortField;
 
 public record GetAllPatternsRequest(
         @Min(value = 0, message = "Page must be greater than or equal to 0")
