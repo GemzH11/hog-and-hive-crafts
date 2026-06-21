@@ -11,10 +11,10 @@ import uk.co.hogandhivecrafts.backend.configuration.PaginationProperties;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
 import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
-import uk.co.hogandhivecrafts.backend.dto.PatternSortField;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.exception.PatternNotFoundException;
 import uk.co.hogandhivecrafts.backend.mapper.PatternMapper;
+import uk.co.hogandhivecrafts.backend.model.PatternSortField;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
 
 import java.util.UUID;

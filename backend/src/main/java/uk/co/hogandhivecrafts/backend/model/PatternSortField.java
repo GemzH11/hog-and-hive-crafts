@@ -1,4 +1,4 @@
-package uk.co.hogandhivecrafts.backend.dto;
+package uk.co.hogandhivecrafts.backend.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

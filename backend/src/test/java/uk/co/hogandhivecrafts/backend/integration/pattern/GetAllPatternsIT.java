@@ -8,8 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsItem;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.entity.File;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.entity.User;
@@ -17,6 +17,7 @@ import uk.co.hogandhivecrafts.backend.integration.AbstractIT;
 import uk.co.hogandhivecrafts.backend.integration.support.FileITData;
 import uk.co.hogandhivecrafts.backend.integration.support.PatternITData;
 import uk.co.hogandhivecrafts.backend.integration.support.UserITData;
+import uk.co.hogandhivecrafts.backend.model.CraftType;
 import uk.co.hogandhivecrafts.backend.repository.FileRepository;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
 import uk.co.hogandhivecrafts.backend.repository.UserRepository;
@@ -28,6 +29,11 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 
 public class GetAllPatternsIT extends AbstractIT {
+    private static final String DATE_TIME_REGEX = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$";
+    private static final String UUID_REGEX = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+    private static final String PATTERN_NAME = "pattern%03d";
+    private static final CraftType PATTERN_CRAFT_TYPE = CraftType.OTHER;
+
     @LocalServerPort
     protected int port;
 
@@ -58,7 +64,7 @@ public class GetAllPatternsIT extends AbstractIT {
 
     @Test
     void getAllPatterns_patternsExist_returns200AndPagedResponse() {
-        User user = UserITData.buildMinimal();
+        User user = UserITData.buildMinimal(0);
         Pattern pattern0 = PatternITData.buildDefault(0, user);
         Pattern pattern1 = PatternITData.buildDefault(1, user);
         File file = FileITData.buildMinimal(0, pattern0);
@@ -74,23 +80,20 @@ public class GetAllPatternsIT extends AbstractIT {
                 .body("patterns", Matchers.hasSize(2))
                 .body("patterns[0].id", Matchers.is(pattern0.getId().toString()))
                 .body("patterns[0].name", Matchers.is(pattern0.getName()))
-                .body("patterns[0].source", Matchers.is(pattern0.getSource()))
-                .body("patterns[0].craftType", Matchers.is(pattern0.getCraftType()))
-                .body("patterns[0].notes", Matchers.is(pattern0.getNotes()))
+                .body("patterns[0].craftType", Matchers.is(pattern0.getCraftType().getValue()))
                 .body("patterns[0].createdAt", Matchers.is(pattern0.getCreatedAt().toString()))
                 .body("patterns[0].updatedAt", Matchers.is(pattern0.getUpdatedAt().toString()))
-                .body("patterns[0].userId", Matchers.is(user.getId().toString()))
                 .body("patterns[0].fileIds", Matchers.hasSize(1))
                 .body("patterns[0].fileIds[0]", Matchers.is(file.getId().toString()))
                 .body("patterns[1].id", Matchers.is(pattern1.getId().toString()))
                 .body("patterns[1].name", Matchers.is(pattern1.getName()))
-                .body("patterns[1].userId", Matchers.is(user.getId().toString()))
+                .body("patterns[1].craftType", Matchers.is(pattern1.getCraftType().getValue()))
                 .body("patterns[1].fileIds", Matchers.hasSize(0));
     }
 
     @Test
     void getAllPatterns_paginationApplied_returnsRequestedPageSorted() {
-        User user = UserITData.buildMinimal();
+        User user = UserITData.buildMinimal(0);
         List<Pattern> patterns = PatternITData.buildList(25, user);
         userRepository.save(user);
         patterns.forEach(patternRepository::save);
@@ -111,14 +114,14 @@ public class GetAllPatternsIT extends AbstractIT {
                 .extract().as(GetAllPatternsResponse.class);
 
         List<String> actual =
-                response.patterns().stream().map(GetPatternByIdResponse::name).toList();
+                response.patterns().stream().map(GetAllPatternsItem::name).toList();
         List<String> expected = actual.stream().sorted(Comparator.reverseOrder()).toList();
         Assertions.assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     void getAllPatterns_noRequestParams_usesDefaults() {
-        User user = UserITData.buildMinimal();
+        User user = UserITData.buildMinimal(0);
         List<Pattern> patterns = PatternITData.buildList(25, user);
         userRepository.save(user);
         patterns.forEach(patternRepository::save);
@@ -134,7 +137,7 @@ public class GetAllPatternsIT extends AbstractIT {
                 .extract().as(GetAllPatternsResponse.class);
 
         List<OffsetDateTime> actual =
-                response.patterns().stream().map(GetPatternByIdResponse::createdAt).toList();
+                response.patterns().stream().map(GetAllPatternsItem::createdAt).toList();
         List<OffsetDateTime> expected = actual.stream().sorted().toList();
         Assertions.assertThat(actual).isEqualTo(expected);
     }

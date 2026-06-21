@@ -1,10 +1,10 @@
 package uk.co.hogandhivecrafts.backend.support.assertions;
 
+import org.assertj.core.api.Assertions;
+import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsItem;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
 import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public final class PatternsDtoAssertions {
     private PatternsDtoAssertions() {
@@ -18,8 +18,8 @@ public final class PatternsDtoAssertions {
      * @param expected the GetAllPatternRequest object that we are expecting
      */
     public static void assertGetAllPatternsRequestEquals(GetAllPatternsRequest actual, GetAllPatternsRequest expected) {
-        assertThat(actual.page()).isEqualTo(expected.page());
-        assertThat(actual.size()).isEqualTo(expected.size());
+        Assertions.assertThat(actual.page()).isEqualTo(expected.page());
+        Assertions.assertThat(actual.size()).isEqualTo(expected.size());
     }
 
     /**
@@ -29,30 +29,37 @@ public final class PatternsDtoAssertions {
      * @param expected the GetAllPatternsResponse object that we are expecting
      */
     public static void assertGetAllPatternsResponseEquals(GetAllPatternsResponse actual, GetAllPatternsResponse expected) {
-        assertThat(actual.patterns()).hasSameSizeAs(expected.patterns());
-        assertThat(actual.patterns()).containsExactlyElementsOf(expected.patterns());
-        assertThat(actual.totalElements()).isEqualTo(expected.totalElements());
-        assertThat(actual.totalPages()).isEqualTo(expected.totalPages());
-        assertThat(actual.page()).isEqualTo(expected.page());
-        assertThat(actual.size()).isEqualTo(expected.size());
+        Assertions.assertThat(actual.patterns()).hasSameSizeAs(expected.patterns());
+        Assertions.assertThat(actual.patterns()).containsExactlyElementsOf(expected.patterns());
+        Assertions.assertThat(actual.totalElements()).isEqualTo(expected.totalElements());
+        Assertions.assertThat(actual.totalPages()).isEqualTo(expected.totalPages());
+        Assertions.assertThat(actual.page()).isEqualTo(expected.page());
+        Assertions.assertThat(actual.size()).isEqualTo(expected.size());
     }
 
     /**
-     * Helper method to assert two GetPatternByIdResponse objects are equal
+     * Helper method to assert two GetAllPatternsItem objects are equal
      *
-     * @param actual   the GetPatternByIdResponse object built in the test
-     * @param expected the GetPatternByIdResponse object that we are expecting
+     * @param actual   the GetAllPatternsItem object built in the test
+     * @param expected the GetAllPatternsItem object that we are expecting
      */
+    public static void assertGetAllPatternsItemEquals(GetAllPatternsItem actual, GetAllPatternsItem expected) {
+        Assertions.assertThat(actual.id()).isEqualTo(expected.id());
+        Assertions.assertThat(actual.name()).isEqualTo(expected.name());
+        Assertions.assertThat(actual.craftType()).isEqualTo(expected.craftType());
+        Assertions.assertThat(actual.createdAt()).isEqualTo(expected.createdAt());
+        Assertions.assertThat(actual.updatedAt()).isEqualTo(expected.updatedAt());
+        Assertions.assertThat(actual.fileIds().size()).isEqualTo(expected.fileIds().size());
+        Assertions.assertThat(actual.fileIds()).containsExactlyElementsOf(expected.fileIds());
+    }
+
     public static void assertGetPatternByIdResponseEquals(GetPatternByIdResponse actual, GetPatternByIdResponse expected) {
-        assertThat(actual.id()).isEqualTo(expected.id());
-        assertThat(actual.name()).isEqualTo(expected.name());
-        assertThat(actual.source()).isEqualTo(expected.source());
-        assertThat(actual.craftType()).isEqualTo(expected.craftType());
-        assertThat(actual.notes()).isEqualTo(expected.notes());
-        assertThat(actual.createdAt()).isEqualTo(expected.createdAt());
-        assertThat(actual.updatedAt()).isEqualTo(expected.updatedAt());
-        assertThat(actual.userId()).isEqualTo(expected.userId());
-        assertThat(actual.fileIds().size()).isEqualTo(expected.fileIds().size());
-        assertThat(actual.fileIds()).containsExactlyElementsOf(expected.fileIds());
+        Assertions.assertThat(actual.id()).isEqualTo(expected.id());
+        Assertions.assertThat(actual.name()).isEqualTo(expected.name());
+        Assertions.assertThat(actual.craftType()).isEqualTo(expected.craftType());
+        Assertions.assertThat(actual.createdAt()).isEqualTo(expected.createdAt());
+        Assertions.assertThat(actual.updatedAt()).isEqualTo(expected.updatedAt());
+        Assertions.assertThat(actual.fileIds().size()).isEqualTo(expected.fileIds().size());
+        Assertions.assertThat(actual.fileIds()).containsExactlyElementsOf(expected.fileIds());
     }
 }

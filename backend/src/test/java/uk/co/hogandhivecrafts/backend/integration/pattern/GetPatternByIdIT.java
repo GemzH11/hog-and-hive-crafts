@@ -47,7 +47,7 @@ public class GetPatternByIdIT extends AbstractIT {
 
     @Test
     void getPatternById_patternExists_returns200AndPattern() {
-        User user = UserITData.buildMinimal();
+        User user = UserITData.buildMinimal(0);
         Pattern pattern = PatternITData.buildDefault(0, user);
         File file = FileITData.buildMinimal(0, pattern);
 
@@ -61,7 +61,7 @@ public class GetPatternByIdIT extends AbstractIT {
                 .body("id", Matchers.is(pattern.getId().toString()))
                 .body("name", Matchers.is(pattern.getName()))
                 .body("source", Matchers.is(pattern.getSource()))
-                .body("craftType", Matchers.is(pattern.getCraftType()))
+                .body("craftType", Matchers.is(pattern.getCraftType().getValue()))
                 .body("notes", Matchers.is(pattern.getNotes()))
                 .body("createdAt", Matchers.is(pattern.getCreatedAt().toString()))
                 .body("updatedAt", Matchers.is(pattern.getUpdatedAt().toString()))

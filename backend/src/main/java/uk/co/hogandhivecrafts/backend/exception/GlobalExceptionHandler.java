@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.util.HtmlUtils;
-import uk.co.hogandhivecrafts.backend.dto.PatternSortField;
+import uk.co.hogandhivecrafts.backend.model.PatternSortField;
 
 import java.util.ArrayList;
 import java.util.Arrays;

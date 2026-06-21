@@ -3,7 +3,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE "users" (
     "id" UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     "email" TEXT,
-    "display_name" TEXT,
+    "display_name" TEXT NOT NULL,
     "avatar_url" TEXT,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -14,7 +14,7 @@ CREATE TABLE "patterns" (
     "user_id" UUID NOT NULL,
     "name" TEXT NOT NULL,
     "source" TEXT,
-    "craft_type" TEXT,
+    "craft_type" TEXT NOT NULL,
     "notes" TEXT,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()

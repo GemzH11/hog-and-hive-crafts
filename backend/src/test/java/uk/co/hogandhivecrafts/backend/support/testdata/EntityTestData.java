@@ -3,6 +3,7 @@ package uk.co.hogandhivecrafts.backend.support.testdata;
 import uk.co.hogandhivecrafts.backend.entity.File;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.entity.User;
+import uk.co.hogandhivecrafts.backend.model.CraftType;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -15,7 +16,7 @@ public class EntityTestData {
     private static final UUID PATTERN_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
     private static final String PATTERN_NAME = "Test pattern";
     private static final String PATTERN_SOURCE = "web";
-    private static final String PATTERN_CRAFT_TYPE = "craft";
+    private static final CraftType PATTERN_CRAFT_TYPE = CraftType.OTHER;
     private static final String PATTERN_NOTES = "notes";
 
     private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");

@@ -6,15 +6,12 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public record GetPatternByIdResponse(
+public record GetAllPatternsItem(
         UUID id,
         String name,
-        String source,
         CraftType craftType,
-        String notes,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt,
-        UUID userId,
         List<UUID> fileIds
 ) {
 }

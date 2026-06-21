@@ -30,9 +30,12 @@ public class UserITData {
      * Builds a minimal User entity with only the required fields populated,
      * using the provided index to generate unique values for each field.
      *
+     * @param index the index to allow uniquely identifying the generated user properties (e.g. user1, user2, etc.)
      * @return a minimally-populated User entity with required properties based on the provided index.
      */
-    public static User buildMinimal() {
-        return new User();
+    public static User buildMinimal(int index) {
+        User user = new User();
+        user.setDisplayName(String.format(USER_DISPLAY_NAME, index));
+        return user;
     }
 }
