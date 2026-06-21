@@ -2,6 +2,8 @@ package uk.co.hogandhivecrafts.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -47,10 +49,12 @@ public class Pattern {
     // insertable = false means that when saving a new user, created_at and updated_at are not included
     // This results in the database setting the fields automatically using now()
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+    @Generated(event = EventType.INSERT)
     @ToString.Include
     private OffsetDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false, insertable = false)
+    @Generated(event = {EventType.INSERT, EventType.UPDATE})
     @ToString.Include
     private OffsetDateTime updatedAt;
 

@@ -3,7 +3,7 @@ package uk.co.hogandhivecrafts.backend.support.testdata;
 import org.springframework.data.domain.Sort;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.GetSinglePatternResponse;
+import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.dto.PatternSortField;
 
 import java.time.OffsetDateTime;
@@ -58,8 +58,8 @@ public class PatternsDtoTestData {
      * @return a fully-populated GetAllPatternsResponse object with default properties
      */
     public static GetAllPatternsResponse buildDefaultGetAllPatternsResponse(List<UUID> patternIds) {
-        List<GetSinglePatternResponse> responses = patternIds.stream()
-                .map(PatternsDtoTestData::buildDefaultGetSinglePatternResponse)
+        List<GetPatternByIdResponse> responses = patternIds.stream()
+                .map(PatternsDtoTestData::buildDefaultGetPatternByIdResponse)
                 .toList();
         return new GetAllPatternsResponse(responses, TOTAL_ELEMENTS, TOTAL_PAGES, PAGE, SIZE);
     }
@@ -83,34 +83,34 @@ public class PatternsDtoTestData {
     }
 
     /**
-     * Builds a default GetSinglePatternResponse object with all fields populated
+     * Builds a default GetPatternByIdResponse object with all fields populated
      *
      * @param patternId the pattern ID to associate with the response
      * @param userId    the user ID to associate with the pattern
      * @param fileIds   the file IDs to associate with the pattern
-     * @return a fully-populated GetSinglePatternResponse object with default properties
+     * @return a fully-populated GetPatternByIdResponse object with default properties
      */
-    public static GetSinglePatternResponse buildDefaultGetSinglePatternResponse(UUID patternId, UUID userId, List<UUID> fileIds) {
-        return new GetSinglePatternResponse(patternId, PATTERN_NAME, PATTERN_SOURCE, PATTERN_CRAFT_TYPE,
+    public static GetPatternByIdResponse buildDefaultGetPatternByIdResponse(UUID patternId, UUID userId, List<UUID> fileIds) {
+        return new GetPatternByIdResponse(patternId, PATTERN_NAME, PATTERN_SOURCE, PATTERN_CRAFT_TYPE,
                 PATTERN_NOTES, CREATED_DATE, UPDATED_DATE, userId, fileIds);
     }
 
     /**
-     * Builds a default GetSinglePatternResponse object using a custom pattern ID and default user and file IDs
+     * Builds a default GetPatternByIdResponse object using a custom pattern ID and default user and file IDs
      *
      * @param patternId the pattern ID to associate with the response
-     * @return a fully-populated GetSinglePatternResponse object with default properties
+     * @return a fully-populated GetPatternByIdResponse object with default properties
      */
-    public static GetSinglePatternResponse buildDefaultGetSinglePatternResponse(UUID patternId) {
-        return buildDefaultGetSinglePatternResponse(patternId, USER_ID, List.of(FILE_ID));
+    public static GetPatternByIdResponse buildDefaultGetPatternByIdResponse(UUID patternId) {
+        return buildDefaultGetPatternByIdResponse(patternId, USER_ID, List.of(FILE_ID));
     }
 
     /**
-     * Builds a default GetSinglePatternResponse object using a default set of IDs
+     * Builds a default GetPatternByIdResponse object using a default set of IDs
      *
-     * @return a fully-populated GetSinglePatternResponse object with default properties
+     * @return a fully-populated GetPatternByIdResponse object with default properties
      */
-    public static GetSinglePatternResponse buildDefaultGetSinglePatternResponse() {
-        return buildDefaultGetSinglePatternResponse(PATTERN_ID, USER_ID, List.of(FILE_ID));
+    public static GetPatternByIdResponse buildDefaultGetPatternByIdResponse() {
+        return buildDefaultGetPatternByIdResponse(PATTERN_ID, USER_ID, List.of(FILE_ID));
     }
 }

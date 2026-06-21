@@ -2,7 +2,7 @@ package uk.co.hogandhivecrafts.backend.support.assertions;
 
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.GetSinglePatternResponse;
+import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,12 +38,12 @@ public final class PatternsDtoAssertions {
     }
 
     /**
-     * Helper method to assert two GetSinglePatternResponse objects are equal
+     * Helper method to assert two GetPatternByIdResponse objects are equal
      *
-     * @param actual   the GetSinglePatternResponse object built in the test
-     * @param expected the GetSinglePatternResponse object that we are expecting
+     * @param actual   the GetPatternByIdResponse object built in the test
+     * @param expected the GetPatternByIdResponse object that we are expecting
      */
-    public static void assertGetSinglePatternResponseEquals(GetSinglePatternResponse actual, GetSinglePatternResponse expected) {
+    public static void assertGetPatternByIdResponseEquals(GetPatternByIdResponse actual, GetPatternByIdResponse expected) {
         assertThat(actual.id()).isEqualTo(expected.id());
         assertThat(actual.name()).isEqualTo(expected.name());
         assertThat(actual.source()).isEqualTo(expected.source());

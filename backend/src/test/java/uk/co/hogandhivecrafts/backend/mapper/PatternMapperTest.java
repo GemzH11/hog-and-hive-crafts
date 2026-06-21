@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.GetSinglePatternResponse;
+import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.support.testdata.EntityTestData;
 
@@ -17,11 +17,11 @@ public class PatternMapperTest {
     private final PatternMapper mapper = new PatternMapper();
 
     @Test
-    void toGetSinglePatternResponse_mapsAllFields() {
+    void toGetPatternByIdResponse_mapsAllFields() {
         Pattern pattern = EntityTestData.buildDefaultPattern(UUID.randomUUID(), List.of(UUID.randomUUID(),
                 UUID.randomUUID()), UUID.randomUUID());
 
-        GetSinglePatternResponse response = mapper.toGetSinglePatternResponse(pattern);
+        GetPatternByIdResponse response = mapper.toGetPatternByIdResponse(pattern);
 
         Assertions.assertThat(response.id()).isEqualTo(pattern.getId());
         Assertions.assertThat(response.name()).isEqualTo(pattern.getName());
@@ -48,7 +48,7 @@ public class PatternMapperTest {
 
         Assertions.assertThat(response.patterns()).hasSameSizeAs(page.getContent());
         Assertions.assertThat(response.patterns()).containsExactlyElementsOf(page.getContent().stream()
-                .map(mapper::toGetSinglePatternResponse)
+                .map(mapper::toGetPatternByIdResponse)
                 .toList());
         Assertions.assertThat(response.totalElements()).isEqualTo(page.getTotalElements());
         Assertions.assertThat(response.totalPages()).isEqualTo(page.getTotalPages());

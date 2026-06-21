@@ -3,7 +3,7 @@ package uk.co.hogandhivecrafts.backend.mapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.GetSinglePatternResponse;
+import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 
 import java.util.List;
@@ -17,8 +17,8 @@ public class PatternMapper {
      * @param pattern Page the Page of Pattern entities to be mapped
      * @return a GetAllPatternsResponse DTO containing the mapped patterns and pagination information
      */
-    public GetSinglePatternResponse toGetSinglePatternResponse(Pattern pattern) {
-        return new GetSinglePatternResponse(
+    public GetPatternByIdResponse toGetPatternByIdResponse(Pattern pattern) {
+        return new GetPatternByIdResponse(
                 pattern.getId(),
                 pattern.getName(),
                 pattern.getSource(),
@@ -39,9 +39,9 @@ public class PatternMapper {
      * @return mapped GetAllPatternsResponse object containing a list of patterns and pagination metadata
      */
     public GetAllPatternsResponse toGetAllPatternsResponse(Page<Pattern> patterns) {
-        List<GetSinglePatternResponse> content = patterns.getContent()
+        List<GetPatternByIdResponse> content = patterns.getContent()
                 .stream()
-                .map(this::toGetSinglePatternResponse)
+                .map(this::toGetPatternByIdResponse)
                 .toList();
         return new GetAllPatternsResponse(
                 content, patterns.getTotalElements(), patterns.getTotalPages(), patterns.getNumber(), patterns.getSize()

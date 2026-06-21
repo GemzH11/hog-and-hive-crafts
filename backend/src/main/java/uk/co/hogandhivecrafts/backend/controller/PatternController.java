@@ -5,11 +5,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
+import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.service.PatternService;
+
+import java.util.UUID;
 
 /**
  * Controller class is where all the user requests are handled and required/appropriate responses are sent
@@ -31,5 +35,16 @@ public class PatternController {
     @GetMapping("/v1")
     public ResponseEntity<GetAllPatternsResponse> getAllPatterns(@Valid GetAllPatternsRequest request) {
         return ResponseEntity.ok().body(patternService.getAllPatterns(request));
+    }
+
+    /**
+     * Fetches a pattern by its ID and returns the pattern details in the response
+     *
+     * @param id the ID of the pattern to fetch
+     * @return the GetPatternByIdResponse containing the pattern details
+     */
+    @GetMapping("/v1/{id}")
+    public ResponseEntity<GetPatternByIdResponse> getPatternById(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok().body(patternService.getPatternById(id));
     }
 }

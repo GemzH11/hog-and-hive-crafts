@@ -4,7 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public record GetSinglePatternResponse(
+public record GetPatternByIdResponse(
         UUID id,
         String name,
         String source,
