@@ -7,21 +7,27 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.entity.File;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.entity.User;
 import uk.co.hogandhivecrafts.backend.integration.AbstractIT;
 import uk.co.hogandhivecrafts.backend.integration.support.FileITData;
+import uk.co.hogandhivecrafts.backend.integration.support.ITAssertions;
 import uk.co.hogandhivecrafts.backend.integration.support.PatternITData;
 import uk.co.hogandhivecrafts.backend.integration.support.UserITData;
 import uk.co.hogandhivecrafts.backend.repository.FileRepository;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
 import uk.co.hogandhivecrafts.backend.repository.UserRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 
+/**
+ * Integration tests for retrieving a single pattern by ID.
+ */
 public class GetPatternByIdIT extends AbstractIT {
     private static final UUID DEFAULT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
@@ -45,31 +51,32 @@ public class GetPatternByIdIT extends AbstractIT {
         fileRepository.deleteAll();
     }
 
+    /**
+     * Verifies that an existing pattern is returned with its full details, including file IDs.
+     */
     @Test
     void getPatternById_patternExists_returns200AndPattern() {
         User user = UserITData.buildMinimal(0);
         Pattern pattern = PatternITData.buildDefault(0, user);
         File file = FileITData.buildMinimal(0, pattern);
 
-        user = userRepository.save(user);
+        userRepository.save(user);
         pattern = patternRepository.save(pattern);
         file = fileRepository.save(file);
 
-        given().when().get(String.format("/api/patterns/v1/%s", pattern.getId()))
+        List<UUID> patternFileIds = List.of(file.getId());
+
+        GetPatternByIdResponse response = given().when().get(String.format("/api/patterns/v1/%s", pattern.getId()))
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
-                .body("id", Matchers.is(pattern.getId().toString()))
-                .body("name", Matchers.is(pattern.getName()))
-                .body("source", Matchers.is(pattern.getSource()))
-                .body("craftType", Matchers.is(pattern.getCraftType().getValue()))
-                .body("notes", Matchers.is(pattern.getNotes()))
-                .body("createdAt", Matchers.is(pattern.getCreatedAt().toString()))
-                .body("updatedAt", Matchers.is(pattern.getUpdatedAt().toString()))
-                .body("userId", Matchers.is(user.getId().toString()))
-                .body("fileIds", Matchers.hasSize(1))
-                .body("fileIds[0]", Matchers.is(file.getId().toString()));
+                .extract().as(GetPatternByIdResponse.class);
+
+        ITAssertions.assertPatternEquals(pattern, patternFileIds, response);
     }
 
+    /**
+     * Verifies that requesting a missing pattern ID returns a 404 response.
+     */
     @Test
     void getPatternById_patternNotFound_returns404() {
         given().when().get(String.format("/api/patterns/v1/%s", DEFAULT_ID))
@@ -78,6 +85,9 @@ public class GetPatternByIdIT extends AbstractIT {
                 .body("message", Matchers.is(String.format("Pattern not found with ID: %s", DEFAULT_ID)));
     }
 
+    /**
+     * Verifies that an invalid UUID path parameter is rejected with a 400 response.
+     */
     @Test
     void getPatternById_InvalidId_returns400() {
         given().when().get("/api/patterns/v1/INVALID")

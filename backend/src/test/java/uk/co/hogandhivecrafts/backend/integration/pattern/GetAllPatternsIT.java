@@ -15,9 +15,9 @@ import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.entity.User;
 import uk.co.hogandhivecrafts.backend.integration.AbstractIT;
 import uk.co.hogandhivecrafts.backend.integration.support.FileITData;
+import uk.co.hogandhivecrafts.backend.integration.support.ITAssertions;
 import uk.co.hogandhivecrafts.backend.integration.support.PatternITData;
 import uk.co.hogandhivecrafts.backend.integration.support.UserITData;
-import uk.co.hogandhivecrafts.backend.model.CraftType;
 import uk.co.hogandhivecrafts.backend.repository.FileRepository;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
 import uk.co.hogandhivecrafts.backend.repository.UserRepository;
@@ -25,15 +25,14 @@ import uk.co.hogandhivecrafts.backend.repository.UserRepository;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 
+/**
+ * Integration tests for listing patterns with pagination and validation.
+ */
 public class GetAllPatternsIT extends AbstractIT {
-    private static final String DATE_TIME_REGEX = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$";
-    private static final String UUID_REGEX = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
-    private static final String PATTERN_NAME = "pattern%03d";
-    private static final CraftType PATTERN_CRAFT_TYPE = CraftType.OTHER;
-
     @LocalServerPort
     protected int port;
 
@@ -54,6 +53,9 @@ public class GetAllPatternsIT extends AbstractIT {
         fileRepository.deleteAll();
     }
 
+    /**
+     * Verifies that the API returns an empty page when no patterns exist.
+     */
     @Test
     void getAllPatterns_noPatterns_returns200AndEmptyList() {
         given().when().get("/api/patterns/v1")
@@ -62,6 +64,9 @@ public class GetAllPatternsIT extends AbstractIT {
                 .body("patterns", Matchers.empty());
     }
 
+    /**
+     * Verifies that existing patterns are returned with their file IDs in the paged response.
+     */
     @Test
     void getAllPatterns_patternsExist_returns200AndPagedResponse() {
         User user = UserITData.buildMinimal(0);
@@ -69,28 +74,27 @@ public class GetAllPatternsIT extends AbstractIT {
         Pattern pattern1 = PatternITData.buildDefault(1, user);
         File file = FileITData.buildMinimal(0, pattern0);
 
-        user = userRepository.save(user);
+        userRepository.save(user);
         pattern0 = patternRepository.save(pattern0);
         pattern1 = patternRepository.save(pattern1);
         file = fileRepository.save(file);
 
-        given().when().get("/api/patterns/v1")
+        List<UUID> pattern0FileIds = List.of(file.getId());
+        List<UUID> pattern1FileIds = List.of();
+
+        GetAllPatternsResponse response = given().when().get("/api/patterns/v1")
                 .then().statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("patterns", Matchers.hasSize(2))
-                .body("patterns[0].id", Matchers.is(pattern0.getId().toString()))
-                .body("patterns[0].name", Matchers.is(pattern0.getName()))
-                .body("patterns[0].craftType", Matchers.is(pattern0.getCraftType().getValue()))
-                .body("patterns[0].createdAt", Matchers.is(pattern0.getCreatedAt().toString()))
-                .body("patterns[0].updatedAt", Matchers.is(pattern0.getUpdatedAt().toString()))
-                .body("patterns[0].fileIds", Matchers.hasSize(1))
-                .body("patterns[0].fileIds[0]", Matchers.is(file.getId().toString()))
-                .body("patterns[1].id", Matchers.is(pattern1.getId().toString()))
-                .body("patterns[1].name", Matchers.is(pattern1.getName()))
-                .body("patterns[1].craftType", Matchers.is(pattern1.getCraftType().getValue()))
-                .body("patterns[1].fileIds", Matchers.hasSize(0));
+                .extract().as(GetAllPatternsResponse.class);
+
+        ITAssertions.assertPatternItemEquals(pattern0, pattern0FileIds, response.patterns().get(0));
+        ITAssertions.assertPatternItemEquals(pattern1, pattern1FileIds, response.patterns().get(1));
     }
 
+    /**
+     * Verifies that custom pagination and sort options are applied and returned correctly.
+     */
     @Test
     void getAllPatterns_paginationApplied_returnsRequestedPageSorted() {
         User user = UserITData.buildMinimal(0);
@@ -113,12 +117,16 @@ public class GetAllPatternsIT extends AbstractIT {
                 .body("size", Matchers.is(10))
                 .extract().as(GetAllPatternsResponse.class);
 
+        // Assert pagination ordering
         List<String> actual =
                 response.patterns().stream().map(GetAllPatternsItem::name).toList();
         List<String> expected = actual.stream().sorted(Comparator.reverseOrder()).toList();
         Assertions.assertThat(actual).isEqualTo(expected);
     }
 
+    /**
+     * Verifies that default pagination settings are used when no request parameters are provided.
+     */
     @Test
     void getAllPatterns_noRequestParams_usesDefaults() {
         User user = UserITData.buildMinimal(0);
@@ -136,12 +144,16 @@ public class GetAllPatternsIT extends AbstractIT {
                 .body("size", Matchers.is(20))
                 .extract().as(GetAllPatternsResponse.class);
 
+        // Assert pagination ordering
         List<OffsetDateTime> actual =
                 response.patterns().stream().map(GetAllPatternsItem::createdAt).toList();
         List<OffsetDateTime> expected = actual.stream().sorted().toList();
         Assertions.assertThat(actual).isEqualTo(expected);
     }
 
+    /**
+     * Verifies that a negative page index is rejected with a 400 response.
+     */
     @Test
     void getAllPatterns_negativePage_returns400() {
         given().queryParam("page", -1)
@@ -153,6 +165,9 @@ public class GetAllPatternsIT extends AbstractIT {
                 .body("errors[0]", Matchers.is("Page must be greater than or equal to 0"));
     }
 
+    /**
+     * Verifies that a non-positive page size is rejected with a 400 response.
+     */
     @Test
     void getAllPatterns_negativeSize_returns400() {
         given().queryParam("size", 0)
@@ -164,6 +179,9 @@ public class GetAllPatternsIT extends AbstractIT {
                 .body("errors[0]", Matchers.is("Size must be greater than or equal to 1"));
     }
 
+    /**
+     * Verifies that a page size above the configured maximum is rejected with a 400 response.
+     */
     @Test
     void getAllPatterns_largeSize_returns400() {
         given().queryParam("size", 101)
@@ -175,6 +193,9 @@ public class GetAllPatternsIT extends AbstractIT {
                 .body("errors[0]", Matchers.is("Size must be less than or equal to 100"));
     }
 
+    /**
+     * Verifies that an invalid sort direction is rejected with a 400 response.
+     */
     @Test
     void getAllPatterns_invalidSortDirection_returns400() {
         given().queryParam("sortDirection", "INVALID")
@@ -186,6 +207,9 @@ public class GetAllPatternsIT extends AbstractIT {
                 .body("errors[0]", Matchers.is("Invalid value for 'sortDirection': INVALID. Allowed values: ASC, DESC"));
     }
 
+    /**
+     * Verifies that an invalid sort field is rejected with a 400 response.
+     */
     @Test
     void getAllPatterns_invalidSortField_returns400() {
         given().queryParam("sortField", "INVALID")

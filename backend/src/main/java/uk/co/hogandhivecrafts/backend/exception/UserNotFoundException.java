@@ -1,5 +1,7 @@
 package uk.co.hogandhivecrafts.backend.exception;
 
+import java.util.UUID;
+
 /**
  * Exception thrown when a requested user is not found in the database.
  * <p>
@@ -13,7 +15,7 @@ public class UserNotFoundException extends RuntimeException {
      *
      * @param id the ID of the user that was not found
      */
-    public UserNotFoundException(Integer id) {
+    public UserNotFoundException(UUID id) {
         super(String.format("User not found with ID: %s", id));
     }
 }

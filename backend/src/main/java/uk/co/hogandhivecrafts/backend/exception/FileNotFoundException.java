@@ -1,5 +1,7 @@
 package uk.co.hogandhivecrafts.backend.exception;
 
+import java.util.UUID;
+
 /**
  * Exception thrown when a requested file is not found in the database.
  * <p>
@@ -13,7 +15,7 @@ public class FileNotFoundException extends RuntimeException {
      *
      * @param id the ID of the file that was not found
      */
-    public FileNotFoundException(Integer id) {
+    public FileNotFoundException(UUID id) {
         super(String.format("File not found with ID: %s", id));
     }
 }

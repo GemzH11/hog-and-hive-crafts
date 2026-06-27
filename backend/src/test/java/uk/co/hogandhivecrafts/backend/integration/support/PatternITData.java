@@ -18,13 +18,12 @@ public class PatternITData {
     }
 
     /**
-     * Builds a default Pattern entity with all fields populated,
-     * using the provided index to generate unique values for each field.
+     * Builds a default {@link Pattern} entity with all fields populated using the provided index to generate
+     * unique values for the name, source, and notes fields.
      *
-     * @param index the index to allow uniquely identifying the generated pattern properties (e.g. source1,
-     *              source2, etc.)
-     * @param user  the user that the pattern should be associated with.
-     * @return a fully populated Pattern entity with unique values based on the provided index.
+     * @param index the index used to generate unique pattern properties
+     * @param user  the user that the pattern should be associated with
+     * @return a fully populated {@link Pattern} entity with unique values based on the provided index
      */
     public static Pattern buildDefault(int index, User user) {
         Pattern pattern = new Pattern();
@@ -37,13 +36,11 @@ public class PatternITData {
     }
 
     /**
-     * Builds a minimal Pattern entity with only the required fields populated,
-     * using the provided index to generate unique values for each field.
+     * Builds a minimal {@link Pattern} entity with only the required fields populated.
      *
-     * @param index the index to allow uniquely identifying the generated pattern properties (e.g. source1, source2, etc.)
-     * @param user  The user object that the pattern should be associated with.
-     *              This allows the generated pattern to be linked to a specific user in the test data setup.
-     * @return a minimally-populated Pattern entity with required properties based on the provided index and associated with the given user.
+     * @param index the index used to generate a unique pattern name
+     * @param user  the user object that the pattern should be associated with
+     * @return a minimally populated {@link Pattern} entity with the required properties set
      */
     public static Pattern buildMinimal(int index, User user) {
         Pattern pattern = new Pattern();
@@ -54,12 +51,11 @@ public class PatternITData {
     }
 
     /**
-     * Builds a list of minimal Pattern entities with only the required fields populated,
-     * using the provided index to generate unique values for each field.
+     * Builds a list of minimal {@link Pattern} entities with sequential indexes starting at {@code 0}.
      *
-     * @param count the number of pattern entities to create.
-     * @param user  The user object that the patterns should be associated with.
-     * @return a list of minimally-populated Pattern entities with required properties based on the provided index and associated with the given user.
+     * @param count the number of pattern entities to create
+     * @param user  the user object that the patterns should be associated with
+     * @return a list of minimally populated {@link Pattern} entities
      */
     public static List<Pattern> buildList(int count, User user) {
         List<Pattern> patterns = new ArrayList<>();

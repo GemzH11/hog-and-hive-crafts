@@ -64,6 +64,7 @@ public class Pattern {
      */
     @Column(name = "craft_type", nullable = false)
     @ToString.Include
+    @Enumerated
     private CraftType craftType;
 
     /**
@@ -77,7 +78,7 @@ public class Pattern {
      * Timestamp when this pattern was created. Automatically set by the database on insert.
      * This field is immutable after creation.
      */
-    // insertable = false means that when saving a new user, created_at and updated_at are not included
+    // insertable = false means that when saving a pattern, created_at and updated_at are not included
     // This results in the database setting the fields automatically using now()
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     @Generated(event = EventType.INSERT)
