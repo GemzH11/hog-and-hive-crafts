@@ -109,8 +109,8 @@ public class GlobalExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String path = HtmlUtils.htmlEscape(request.getRequestURI());
 
-        ex.getMostSpecificCause();
-        String causeMessage = ex.getMostSpecificCause().getMessage();
+        Throwable cause = ex.getMostSpecificCause();
+        String causeMessage = cause != null ? cause.getMessage() : null;
         String errorDetail = causeMessage != null && !causeMessage.isBlank() ? causeMessage : "Malformed request body";
 
         List<String> errors = List.of(errorDetail);
