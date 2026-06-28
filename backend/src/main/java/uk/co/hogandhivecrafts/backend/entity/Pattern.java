@@ -124,8 +124,8 @@ public class Pattern {
     }
 
     /**
-     * Helper method to extract file IDs from the files collection without triggering
-     * lazy initialization. Used for serialization.
+     * Helper method to extract file IDs from the files collection.
+     * Note: accessing a lazy {@code files} collection here will trigger initialization.
      *
      * @return a list of file IDs, or an empty list if no files are associated
      */

@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
      *
      * @param ex      the thrown exception
      * @param request the request that caused the exception to be thrown
-     * @return a formatted error response that can be returned to the client with a 400 status code
+     * @return a formatted error response that can be returned to the client with a 404 status code
      */
     @ExceptionHandler({UserNotFoundException.class, PatternNotFoundException.class, FileNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex, HttpServletRequest request) {
@@ -109,7 +109,6 @@ public class GlobalExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String path = HtmlUtils.htmlEscape(request.getRequestURI());
 
-        ex.getMostSpecificCause();
         String causeMessage = ex.getMostSpecificCause().getMessage();
         String errorDetail = causeMessage != null && !causeMessage.isBlank() ? causeMessage : "Malformed request body";
 
