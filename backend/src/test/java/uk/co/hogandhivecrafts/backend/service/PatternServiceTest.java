@@ -11,12 +11,18 @@ import org.springframework.data.domain.Sort;
 import uk.co.hogandhivecrafts.backend.configuration.PaginationProperties;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.PatternSortField;
+import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
+import uk.co.hogandhivecrafts.backend.exception.PatternNotFoundException;
 import uk.co.hogandhivecrafts.backend.mapper.PatternMapper;
+import uk.co.hogandhivecrafts.backend.model.PatternSortField;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
 import uk.co.hogandhivecrafts.backend.support.assertions.PatternsDtoAssertions;
+import uk.co.hogandhivecrafts.backend.support.testdata.EntityTestData;
 import uk.co.hogandhivecrafts.backend.support.testdata.PatternsDtoTestData;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 public class PatternServiceTest {
@@ -27,6 +33,7 @@ public class PatternServiceTest {
     private static final PatternSortField PATTERN_SORT_FIELD = PatternSortField.NAME;
     private static final Sort.Direction DIRECTION_DEFAULT = Sort.Direction.ASC;
     private static final Sort.Direction DIRECTION = Sort.Direction.DESC;
+    private static final UUID DEFAULT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     @Mock
     private PatternRepository patternRepository;
@@ -97,15 +104,40 @@ public class PatternServiceTest {
     void getAllPatterns_callsRepositoryAndMapper() {
         GetAllPatternsRequest request = PatternsDtoTestData.buildDefaultGetAllPatternsRequest();
         Page<Pattern> page = Page.empty();
-        GetAllPatternsResponse response = PatternsDtoTestData.buildDefaultGetAllPatternsResponse();
+        GetAllPatternsResponse expected = PatternsDtoTestData.buildDefaultGetAllPatternsResponse();
 
         BDDMockito.given(patternRepository.findAll(ArgumentMatchers.any(Pageable.class))).willReturn(page);
-        BDDMockito.given(patternMapper.toGetAllPatternsResponse(page)).willReturn(response);
+        BDDMockito.given(patternMapper.toGetAllPatternsResponse(page)).willReturn(expected);
 
         GetAllPatternsResponse actual = patternService.getAllPatterns(request);
 
         Mockito.verify(patternRepository).findAll(ArgumentMatchers.any(Pageable.class));
         Mockito.verify(patternMapper).toGetAllPatternsResponse(page);
-        PatternsDtoAssertions.assertGetAllPatternsResponseEquals(actual, response);
+        PatternsDtoAssertions.assertGetAllPatternsResponseEquals(actual, expected);
     }
+
+    @Test
+    void getPatternById_callsRepositoryAndMapper() {
+        GetPatternByIdResponse expected = PatternsDtoTestData.buildDefaultGetPatternByIdResponse();
+        Optional<Pattern> optional = Optional.of(EntityTestData.buildDefaultPattern());
+
+        BDDMockito.given(patternRepository.findById(ArgumentMatchers.any(UUID.class))).willReturn(optional);
+        BDDMockito.given(patternMapper.toGetPatternByIdResponse(optional.get())).willReturn(expected);
+
+        GetPatternByIdResponse actual = patternService.getPatternById(DEFAULT_ID);
+
+        Mockito.verify(patternRepository).findById(ArgumentMatchers.any(UUID.class));
+        Mockito.verify(patternMapper).toGetPatternByIdResponse(optional.get());
+        PatternsDtoAssertions.assertGetPatternByIdResponseEquals(actual, expected);
+    }
+
+    @Test
+    void getPatternById_notFound_throwsPatternNotFoundException() {
+        BDDMockito.given(patternRepository.findById(ArgumentMatchers.any(UUID.class))).willReturn(Optional.empty());
+
+        Assertions.assertThatExceptionOfType(PatternNotFoundException.class)
+                .isThrownBy(() -> patternService.getPatternById(DEFAULT_ID)).withMessage(String.format("Pattern not " +
+                        "found with ID: %s", DEFAULT_ID));
+    }
+
 }

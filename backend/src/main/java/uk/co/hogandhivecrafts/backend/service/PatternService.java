@@ -10,10 +10,14 @@ import org.springframework.stereotype.Service;
 import uk.co.hogandhivecrafts.backend.configuration.PaginationProperties;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.PatternSortField;
+import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
+import uk.co.hogandhivecrafts.backend.exception.PatternNotFoundException;
 import uk.co.hogandhivecrafts.backend.mapper.PatternMapper;
+import uk.co.hogandhivecrafts.backend.model.PatternSortField;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
+
+import java.util.UUID;
 
 /**
  * Service layer is where all the business logic lies
@@ -41,6 +45,22 @@ public class PatternService {
         Page<Pattern> patterns = patternRepository.findAll(pageable);
 
         return patternMapper.toGetAllPatternsResponse(patterns);
+    }
+
+    /**
+     * Fetches a pattern by its ID
+     *
+     * @param id the ID of the pattern to fetch
+     * @return the GetPatternByIdResponse containing the pattern details
+     */
+    public GetPatternByIdResponse getPatternById(UUID id) {
+        Pattern pattern = patternRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Pattern with id {} not found", id);
+                    return new PatternNotFoundException(id);
+                });
+
+        return patternMapper.toGetPatternByIdResponse(pattern);
     }
 
     /**

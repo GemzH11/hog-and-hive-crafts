@@ -18,7 +18,7 @@ This project is being built primarily as a learning-focused software engineering
 
 | **Area** | **Stack/Tools** |
 | ------------ | ------------- |
-| Backend | Java 21, Spring Boot, Maven, Spring Security, Spring Data JPA |
+| Backend | Java 25, Spring Boot, Maven, Spring Security, Spring Data JPA |
 | Database | PosgreSQL, Flyway |
 | Backend Testing | JUnit, Mockito, Testcontainers |
 | Frontend | React, TypeScript, Vite, Tailwind CSS |

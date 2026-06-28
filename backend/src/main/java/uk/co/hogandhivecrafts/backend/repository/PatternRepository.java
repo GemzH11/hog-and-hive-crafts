@@ -5,5 +5,11 @@ import uk.co.hogandhivecrafts.backend.entity.Pattern;
 
 import java.util.UUID;
 
+/**
+ * Repository interface for Pattern entities.
+ * <p>
+ * Provides CRUD operations and pagination support for Pattern entities.
+ * The JpaRepository base provides methods like save(), findById(), findAll(), delete(), etc.
+ */
 public interface PatternRepository extends JpaRepository<Pattern, UUID> {
 }

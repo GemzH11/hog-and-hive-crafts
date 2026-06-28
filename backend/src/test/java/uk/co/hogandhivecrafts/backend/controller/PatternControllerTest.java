@@ -18,6 +18,8 @@ import tools.jackson.databind.ObjectMapper;
 import uk.co.hogandhivecrafts.backend.configuration.CorsProperties;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
+import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
+import uk.co.hogandhivecrafts.backend.exception.PatternNotFoundException;
 import uk.co.hogandhivecrafts.backend.service.PatternService;
 import uk.co.hogandhivecrafts.backend.support.assertions.PatternsDtoAssertions;
 import uk.co.hogandhivecrafts.backend.support.testdata.PatternsDtoTestData;
@@ -28,6 +30,8 @@ import java.util.UUID;
 @WebMvcTest(controllers = PatternController.class)
 @Import(CorsProperties.class)
 public class PatternControllerTest {
+    private static final UUID DEFAULT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -56,8 +60,7 @@ public class PatternControllerTest {
 
     @Test
     void getAllPatterns_patternsExist_returns200AndPagedResponse() throws Exception {
-        GetAllPatternsResponse expected =
-                PatternsDtoTestData.buildDefaultGetAllPatternsResponse(List.of(UUID.randomUUID(), UUID.randomUUID()));
+        GetAllPatternsResponse expected = PatternsDtoTestData.buildDefaultGetAllPatternsResponse(List.of(UUID.randomUUID(), UUID.randomUUID()));
 
         BDDMockito.given(patternService.getAllPatterns(ArgumentMatchers.any(GetAllPatternsRequest.class)))
                 .willReturn(expected);
@@ -128,11 +131,10 @@ public class PatternControllerTest {
                 .willReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/patterns/v1")
-                        .param("page", "1")
-                        .param("size", "10")
-                        .param("sortField", "NAME")
-                        .param("sortDirection", "DESC"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .param("page", "1")
+                .param("size", "10")
+                .param("sortField", "NAME")
+                .param("sortDirection", "DESC")).andExpect(MockMvcResultMatchers.status().isOk());
 
         Mockito.verify(patternService).getAllPatterns(captor.capture());
         GetAllPatternsRequest actual = captor.getValue();
@@ -156,5 +158,43 @@ public class PatternControllerTest {
         GetAllPatternsRequest actual = captor.getValue();
 
         PatternsDtoAssertions.assertGetAllPatternsRequestEquals(actual, expected);
+    }
+
+    @Test
+    void getPatternById_patternExists_returns200AndPattern() throws Exception {
+        GetPatternByIdResponse expected = PatternsDtoTestData.buildDefaultGetPatternByIdResponse();
+
+        BDDMockito.given(patternService.getPatternById(ArgumentMatchers.any(UUID.class))).willReturn(expected);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(String.format("/api/patterns/v1/%s", DEFAULT_ID)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        GetPatternByIdResponse actual = objectMapper.readValue(result.getResponse()
+                .getContentAsString(), GetPatternByIdResponse.class);
+
+        PatternsDtoAssertions.assertGetPatternByIdResponseEquals(actual, expected);
+    }
+
+    @Test
+    void getPatternById_patternNotFound_returns404() throws Exception {
+        BDDMockito.given(patternService.getPatternById(ArgumentMatchers.any(UUID.class)))
+                .willThrow(new PatternNotFoundException(DEFAULT_ID));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(String.format("/api/patterns/v1/%s", DEFAULT_ID)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message")
+                        .value("Pattern not found with ID: 00000000-0000-0000-0000-000000000000"));
+    }
+
+    @Test
+    void getPatternById_InvalidId_returns400() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/patterns/v1/INVALID"))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]")
+                        .value("Invalid value for ID path parameter: INVALID (expected UUID)"));
+
     }
 }
