@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
-public class FlywayIT extends AbstractIT {
+class FlywayIT extends AbstractIT {
     @Autowired
     Flyway flyway;
 

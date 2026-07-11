@@ -123,8 +123,7 @@ public class PatternsDtoTestData {
      * @return a fully-populated GetPatternByIdResponse object with default properties
      */
     public static GetPatternByIdResponse buildDefaultGetPatternByIdResponse(UUID patternId, UUID userId, List<UUID> fileIds) {
-        return new GetPatternByIdResponse(patternId, PATTERN_NAME, PATTERN_SOURCE, PATTERN_CRAFT_TYPE,
-                PATTERN_NOTES, CREATED_DATE, UPDATED_DATE, userId, fileIds);
+        return new GetPatternByIdResponse(patternId, PATTERN_NAME, PATTERN_SOURCE, PATTERN_CRAFT_TYPE, PATTERN_NOTES, CREATED_DATE, UPDATED_DATE, userId, fileIds);
     }
 
     /**

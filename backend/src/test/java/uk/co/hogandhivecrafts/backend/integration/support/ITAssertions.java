@@ -31,8 +31,7 @@ public final class ITAssertions {
      * @param expectedFileIds the expected file IDs for the pattern
      * @param actual          the DTO returned by the API under test
      */
-    public static void assertPatternEquals(Pattern expected, List<UUID> expectedFileIds,
-                                           GetPatternByIdResponse actual) {
+    public static void assertPatternEquals(Pattern expected, List<UUID> expectedFileIds, GetPatternByIdResponse actual) {
         Assertions.assertThat(actual).isNotNull();
         Assertions.assertThat(actual.id()).isEqualTo(expected.getId());
         Assertions.assertThat(actual.name()).isEqualTo(expected.getName());

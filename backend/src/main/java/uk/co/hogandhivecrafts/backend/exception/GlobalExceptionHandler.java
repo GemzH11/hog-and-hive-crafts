@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    private static final String INVALID_REQUEST = "Invalid request";
+
     /**
      * Global exception handler for MethodArgumentNotValidExceptions
      *
@@ -32,14 +34,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String path = HtmlUtils.htmlEscape(request.getRequestURI());
-        String message = "Invalid request";
-        List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(this::formatFieldError)
-                .toList();
+        List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(this::formatFieldError).toList();
 
-        return buildResponse(status, message, path, errors);
+        return buildResponse(status, INVALID_REQUEST, path, errors);
     }
 
     /**
@@ -70,11 +67,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String path = HtmlUtils.htmlEscape(request.getRequestURI());
-        String message = "Invalid request";
         List<String> errors = ex.getMessage() != null && !ex.getMessage()
                 .isBlank() ? List.of(ex.getMessage()) : List.of();
 
-        return buildResponse(status, message, path, errors);
+        return buildResponse(status, INVALID_REQUEST, path, errors);
     }
 
     /**
@@ -90,15 +86,15 @@ public class GlobalExceptionHandler {
         Object rejectedValue = ex.getValue();
         // Include the expected type (when available) to make the error more actionable
         String valueStr = rejectedValue == null ? "null" : rejectedValue.toString();
-        String expected = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : null;
+        Class<?> requiredType = ex.getRequiredType();
+        String expected = requiredType != null ? requiredType.getSimpleName() : null;
         String errorDetail = expected != null
                 ? String.format("Invalid value for %s path parameter: %s (expected %s)", paramName.toUpperCase(), valueStr, expected)
                 : String.format("Invalid value for %s path parameter: %s", paramName.toUpperCase(), valueStr);
 
         List<String> errors = List.of(errorDetail);
-        String message = "Invalid request";
 
-        return buildResponse(status, message, path, errors);
+        return buildResponse(status, INVALID_REQUEST, path, errors);
     }
 
     /**
@@ -113,9 +109,8 @@ public class GlobalExceptionHandler {
         String errorDetail = causeMessage != null && !causeMessage.isBlank() ? causeMessage : "Malformed request body";
 
         List<String> errors = List.of(errorDetail);
-        String message = "Invalid request";
 
-        return buildResponse(status, message, path, errors);
+        return buildResponse(status, INVALID_REQUEST, path, errors);
     }
 
     @ExceptionHandler(Exception.class)

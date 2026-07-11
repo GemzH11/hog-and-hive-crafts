@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
-public class PatternServiceTest {
+class PatternServiceTest {
     private static final int PAGE_DEFAULT = 20;
     private static final int PAGE = 1;
     private static final int SIZE = 10;
@@ -90,7 +90,7 @@ public class PatternServiceTest {
         Mockito.verify(patternRepository).findAll(captor.capture());
         Pageable pageable = captor.getValue();
 
-        Assertions.assertThat(pageable.getPageNumber()).isEqualTo(0);
+        Assertions.assertThat(pageable.getPageNumber()).isZero();
         Assertions.assertThat(pageable.getPageSize()).isEqualTo(PAGE_DEFAULT);
 
         Sort sort = pageable.getSort();
@@ -121,23 +121,42 @@ public class PatternServiceTest {
         GetPatternByIdResponse expected = PatternsDtoTestData.buildDefaultGetPatternByIdResponse();
         Optional<Pattern> optional = Optional.of(EntityTestData.buildDefaultPattern());
 
-        BDDMockito.given(patternRepository.findById(ArgumentMatchers.any(UUID.class))).willReturn(optional);
+        BDDMockito.given(patternRepository.findById(DEFAULT_ID)).willReturn(optional);
         BDDMockito.given(patternMapper.toGetPatternByIdResponse(optional.get())).willReturn(expected);
 
         GetPatternByIdResponse actual = patternService.getPatternById(DEFAULT_ID);
 
-        Mockito.verify(patternRepository).findById(ArgumentMatchers.any(UUID.class));
+        Mockito.verify(patternRepository).findById(DEFAULT_ID);
         Mockito.verify(patternMapper).toGetPatternByIdResponse(optional.get());
         PatternsDtoAssertions.assertGetPatternByIdResponseEquals(actual, expected);
     }
 
     @Test
     void getPatternById_notFound_throwsPatternNotFoundException() {
-        BDDMockito.given(patternRepository.findById(ArgumentMatchers.any(UUID.class))).willReturn(Optional.empty());
+        BDDMockito.given(patternRepository.findById(DEFAULT_ID)).willReturn(Optional.empty());
 
         Assertions.assertThatExceptionOfType(PatternNotFoundException.class)
-                .isThrownBy(() -> patternService.getPatternById(DEFAULT_ID)).withMessage(String.format("Pattern not " +
-                        "found with ID: %s", DEFAULT_ID));
+                .isThrownBy(() -> patternService.getPatternById(DEFAULT_ID))
+                .withMessage(String.format("Pattern not " + "found with ID: %s", DEFAULT_ID));
     }
 
+    @Test
+    void deletePatternById_callsRepository() {
+        BDDMockito.given(patternRepository.existsById(DEFAULT_ID)).willReturn(true);
+        BDDMockito.doNothing().when(patternRepository).deleteById(DEFAULT_ID);
+
+        patternService.deletePatternById(DEFAULT_ID);
+
+        Mockito.verify(patternRepository).existsById(DEFAULT_ID);
+        Mockito.verify(patternRepository).deleteById(DEFAULT_ID);
+    }
+
+    @Test
+    void deletePatternById_notFound_throwsPatternNotFoundException() {
+        BDDMockito.given(patternRepository.existsById(DEFAULT_ID)).willReturn(false);
+
+        Assertions.assertThatExceptionOfType(PatternNotFoundException.class)
+                .isThrownBy(() -> patternService.deletePatternById(DEFAULT_ID))
+                .withMessage(String.format("Pattern not found with ID: %s", DEFAULT_ID));
+    }
 }
