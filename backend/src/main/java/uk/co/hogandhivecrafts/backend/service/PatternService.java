@@ -79,7 +79,7 @@ public class PatternService {
             patternRepository.deleteById(id);
             log.info("Pattern with id {} deleted successfully", id);
             // Catch to prevent race condition
-        } catch (EmptyResultDataAccessException _) {
+        } catch (EmptyResultDataAccessException ignored) {
             log.warn("Pattern with id {} not found for deletion", id);
             throw new PatternNotFoundException(id);
         }
