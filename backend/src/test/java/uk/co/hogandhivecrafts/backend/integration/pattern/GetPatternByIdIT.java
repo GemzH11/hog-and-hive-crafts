@@ -66,10 +66,13 @@ class GetPatternByIdIT extends AbstractIT {
 
         List<UUID> patternFileIds = List.of(file.getId());
 
-        GetPatternByIdResponse response = given().when().get(String.format("/api/patterns/v1/%s", pattern.getId()))
-                .then().statusCode(200)
+        GetPatternByIdResponse response = given().when()
+                .get(String.format("/api/patterns/%s", pattern.getId()))
+                .then()
+                .statusCode(200)
                 .contentType(ContentType.JSON)
-                .extract().as(GetPatternByIdResponse.class);
+                .extract()
+                .as(GetPatternByIdResponse.class);
 
         ITAssertions.assertPatternEquals(pattern, patternFileIds, response);
     }
@@ -79,8 +82,10 @@ class GetPatternByIdIT extends AbstractIT {
      */
     @Test
     void getPatternById_patternNotFound_returns404() {
-        given().when().get(String.format("/api/patterns/v1/%s", DEFAULT_ID))
-                .then().statusCode(404)
+        given().when()
+                .get(String.format("/api/patterns/%s", DEFAULT_ID))
+                .then()
+                .statusCode(404)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is(String.format("Pattern not found with ID: %s", DEFAULT_ID)));
     }
@@ -90,8 +95,10 @@ class GetPatternByIdIT extends AbstractIT {
      */
     @Test
     void getPatternById_InvalidId_returns400() {
-        given().when().get("/api/patterns/v1/INVALID")
-                .then().statusCode(400)
+        given().when()
+                .get("/api/patterns/INVALID")
+                .then()
+                .statusCode(400)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is("Invalid request"))
                 .body("errors", Matchers.hasSize(1))

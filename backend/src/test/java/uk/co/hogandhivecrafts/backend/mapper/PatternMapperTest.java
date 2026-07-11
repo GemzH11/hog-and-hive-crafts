@@ -19,8 +19,7 @@ class PatternMapperTest {
 
     @Test
     void toGetAllPatternsItem_mapsAllFields() {
-        Pattern pattern = EntityTestData.buildDefaultPattern(UUID.randomUUID(), List.of(UUID.randomUUID(),
-                UUID.randomUUID()), UUID.randomUUID());
+        Pattern pattern = EntityTestData.buildDefaultPattern(UUID.randomUUID(), List.of(UUID.randomUUID(), UUID.randomUUID()), UUID.randomUUID());
 
         GetAllPatternsItem response = mapper.toGetAllPatternsItem(pattern);
 
@@ -35,19 +34,16 @@ class PatternMapperTest {
 
     @Test
     void toGetAllPatternsResponse_mapsAllFields() {
-        Pattern pattern1 = EntityTestData.buildDefaultPattern(UUID.randomUUID(), List.of(UUID.randomUUID(),
-                UUID.randomUUID()), UUID.randomUUID());
-        Pattern pattern2 = EntityTestData.buildDefaultPattern(UUID.randomUUID(), List.of(UUID.randomUUID(),
-                UUID.randomUUID()), UUID.randomUUID());
+        Pattern pattern1 = EntityTestData.buildDefaultPattern(UUID.randomUUID(), List.of(UUID.randomUUID(), UUID.randomUUID()), UUID.randomUUID());
+        Pattern pattern2 = EntityTestData.buildDefaultPattern(UUID.randomUUID(), List.of(UUID.randomUUID(), UUID.randomUUID()), UUID.randomUUID());
 
         Page<Pattern> page = new PageImpl<>(List.of(pattern1, pattern2), PageRequest.of(0, 20), 2);
 
         GetAllPatternsResponse response = mapper.toGetAllPatternsResponse(page);
 
         Assertions.assertThat(response.patterns()).hasSameSizeAs(page.getContent());
-        Assertions.assertThat(response.patterns()).containsExactlyElementsOf(page.getContent().stream()
-                .map(mapper::toGetAllPatternsItem)
-                .toList());
+        Assertions.assertThat(response.patterns())
+                .containsExactlyElementsOf(page.getContent().stream().map(mapper::toGetAllPatternsItem).toList());
         Assertions.assertThat(response.totalElements()).isEqualTo(page.getTotalElements());
         Assertions.assertThat(response.totalPages()).isEqualTo(page.getTotalPages());
         Assertions.assertThat(response.page()).isEqualTo(page.getNumber());
@@ -56,8 +52,7 @@ class PatternMapperTest {
 
     @Test
     void toGetPatternByIdResponse_mapsAllFields() {
-        Pattern pattern = EntityTestData.buildDefaultPattern(UUID.randomUUID(), List.of(UUID.randomUUID(),
-                UUID.randomUUID()), UUID.randomUUID());
+        Pattern pattern = EntityTestData.buildDefaultPattern(UUID.randomUUID(), List.of(UUID.randomUUID(), UUID.randomUUID()), UUID.randomUUID());
 
         GetPatternByIdResponse response = mapper.toGetPatternByIdResponse(pattern);
 

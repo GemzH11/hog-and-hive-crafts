@@ -34,11 +34,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String path = HtmlUtils.htmlEscape(request.getRequestURI());
-        List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(this::formatFieldError)
-                .toList();
+        List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(this::formatFieldError).toList();
 
         return buildResponse(status, INVALID_REQUEST, path, errors);
     }

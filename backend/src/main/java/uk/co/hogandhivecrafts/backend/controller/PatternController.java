@@ -29,7 +29,7 @@ public class PatternController {
      *
      * @return list of paginated patterns
      */
-    @GetMapping("/v1")
+    @GetMapping
     public ResponseEntity<GetAllPatternsResponse> getAllPatterns(@Valid GetAllPatternsRequest request) {
         return ResponseEntity.ok().body(patternService.getAllPatterns(request));
     }
@@ -40,7 +40,7 @@ public class PatternController {
      * @param id the ID of the pattern to fetch
      * @return the GetPatternByIdResponse containing the pattern details
      */
-    @GetMapping("/v1/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<GetPatternByIdResponse> getPatternById(@PathVariable("id") UUID id) {
         return ResponseEntity.ok().body(patternService.getPatternById(id));
     }
@@ -50,7 +50,7 @@ public class PatternController {
      *
      * @param id the ID of the pattern to delete
      */
-    @DeleteMapping("/v1/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePatternById(@PathVariable("id") UUID id) {
         patternService.deletePatternById(id);
         return ResponseEntity.noContent().build();

@@ -49,7 +49,6 @@ public final class PatternsDtoAssertions {
         Assertions.assertThat(actual.craftType()).isEqualTo(expected.craftType());
         Assertions.assertThat(actual.createdAt()).isEqualTo(expected.createdAt());
         Assertions.assertThat(actual.updatedAt()).isEqualTo(expected.updatedAt());
-        Assertions.assertThat(actual.fileIds()).hasSameSizeAs(expected.fileIds());
         Assertions.assertThat(actual.fileIds()).containsExactlyElementsOf(expected.fileIds());
     }
 
@@ -59,7 +58,6 @@ public final class PatternsDtoAssertions {
         Assertions.assertThat(actual.craftType()).isEqualTo(expected.craftType());
         Assertions.assertThat(actual.createdAt()).isEqualTo(expected.createdAt());
         Assertions.assertThat(actual.updatedAt()).isEqualTo(expected.updatedAt());
-        Assertions.assertThat(actual.fileIds()).hasSameSizeAs(expected.fileIds());
         Assertions.assertThat(actual.fileIds()).containsExactlyElementsOf(expected.fileIds());
     }
 }

@@ -58,8 +58,10 @@ class GetAllPatternsIT extends AbstractIT {
      */
     @Test
     void getAllPatterns_noPatterns_returns200AndEmptyList() {
-        given().when().get("/api/patterns/v1")
-                .then().statusCode(200)
+        given().when()
+                .get("/api/patterns")
+                .then()
+                .statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("patterns", Matchers.empty());
     }
@@ -82,11 +84,14 @@ class GetAllPatternsIT extends AbstractIT {
         List<UUID> pattern0FileIds = List.of(file.getId());
         List<UUID> pattern1FileIds = List.of();
 
-        GetAllPatternsResponse response = given().when().get("/api/patterns/v1")
-                .then().statusCode(200)
+        GetAllPatternsResponse response = given().when()
+                .get("/api/patterns")
+                .then()
+                .statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("patterns", Matchers.hasSize(2))
-                .extract().as(GetAllPatternsResponse.class);
+                .extract()
+                .as(GetAllPatternsResponse.class);
 
         ITAssertions.assertPatternItemEquals(pattern0, pattern0FileIds, response.patterns().get(0));
         ITAssertions.assertPatternItemEquals(pattern1, pattern1FileIds, response.patterns().get(1));
@@ -107,19 +112,21 @@ class GetAllPatternsIT extends AbstractIT {
                 .queryParam("size", 10)
                 .queryParam("sortField", "NAME")
                 .queryParam("sortDirection", "DESC")
-                .when().get("/api/patterns/v1")
-                .then().statusCode(200)
+                .when()
+                .get("/api/patterns")
+                .then()
+                .statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("patterns", Matchers.hasSize(5))
                 .body("totalElements", Matchers.is(25))
                 .body("totalPages", Matchers.is(3))
                 .body("page", Matchers.is(2))
                 .body("size", Matchers.is(10))
-                .extract().as(GetAllPatternsResponse.class);
+                .extract()
+                .as(GetAllPatternsResponse.class);
 
         // Assert pagination ordering
-        List<String> actual =
-                response.patterns().stream().map(GetAllPatternsItem::name).toList();
+        List<String> actual = response.patterns().stream().map(GetAllPatternsItem::name).toList();
         List<String> expected = actual.stream().sorted(Comparator.reverseOrder()).toList();
         Assertions.assertThat(actual).isEqualTo(expected);
     }
@@ -134,19 +141,21 @@ class GetAllPatternsIT extends AbstractIT {
         userRepository.save(user);
         patterns.forEach(patternRepository::save);
 
-        GetAllPatternsResponse response = given().when().get("/api/patterns/v1")
-                .then().statusCode(200)
+        GetAllPatternsResponse response = given().when()
+                .get("/api/patterns")
+                .then()
+                .statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("patterns", Matchers.hasSize(20))
                 .body("totalElements", Matchers.is(25))
                 .body("totalPages", Matchers.is(2))
                 .body("page", Matchers.is(0))
                 .body("size", Matchers.is(20))
-                .extract().as(GetAllPatternsResponse.class);
+                .extract()
+                .as(GetAllPatternsResponse.class);
 
         // Assert pagination ordering
-        List<OffsetDateTime> actual =
-                response.patterns().stream().map(GetAllPatternsItem::createdAt).toList();
+        List<OffsetDateTime> actual = response.patterns().stream().map(GetAllPatternsItem::createdAt).toList();
         List<OffsetDateTime> expected = actual.stream().sorted().toList();
         Assertions.assertThat(actual).isEqualTo(expected);
     }
@@ -157,8 +166,10 @@ class GetAllPatternsIT extends AbstractIT {
     @Test
     void getAllPatterns_negativePage_returns400() {
         given().queryParam("page", -1)
-                .when().get("/api/patterns/v1")
-                .then().statusCode(400)
+                .when()
+                .get("/api/patterns")
+                .then()
+                .statusCode(400)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is("Invalid request"))
                 .body("errors", Matchers.hasSize(1))
@@ -171,8 +182,10 @@ class GetAllPatternsIT extends AbstractIT {
     @Test
     void getAllPatterns_negativeSize_returns400() {
         given().queryParam("size", 0)
-                .when().get("/api/patterns/v1")
-                .then().statusCode(400)
+                .when()
+                .get("/api/patterns")
+                .then()
+                .statusCode(400)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is("Invalid request"))
                 .body("errors", Matchers.hasSize(1))
@@ -185,8 +198,10 @@ class GetAllPatternsIT extends AbstractIT {
     @Test
     void getAllPatterns_largeSize_returns400() {
         given().queryParam("size", 101)
-                .when().get("/api/patterns/v1")
-                .then().statusCode(400)
+                .when()
+                .get("/api/patterns")
+                .then()
+                .statusCode(400)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is("Invalid request"))
                 .body("errors", Matchers.hasSize(1))
@@ -199,8 +214,10 @@ class GetAllPatternsIT extends AbstractIT {
     @Test
     void getAllPatterns_invalidSortDirection_returns400() {
         given().queryParam("sortDirection", "INVALID")
-                .when().get("/api/patterns/v1")
-                .then().statusCode(400)
+                .when()
+                .get("/api/patterns")
+                .then()
+                .statusCode(400)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is("Invalid request"))
                 .body("errors", Matchers.hasSize(1))
@@ -213,8 +230,10 @@ class GetAllPatternsIT extends AbstractIT {
     @Test
     void getAllPatterns_invalidSortField_returns400() {
         given().queryParam("sortField", "INVALID")
-                .when().get("/api/patterns/v1")
-                .then().statusCode(400)
+                .when()
+                .get("/api/patterns")
+                .then()
+                .statusCode(400)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is("Invalid request"))
                 .body("errors", Matchers.hasSize(1))

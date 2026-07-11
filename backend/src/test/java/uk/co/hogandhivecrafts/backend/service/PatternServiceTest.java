@@ -121,39 +121,39 @@ class PatternServiceTest {
         GetPatternByIdResponse expected = PatternsDtoTestData.buildDefaultGetPatternByIdResponse();
         Optional<Pattern> optional = Optional.of(EntityTestData.buildDefaultPattern());
 
-        BDDMockito.given(patternRepository.findById(ArgumentMatchers.any(UUID.class))).willReturn(optional);
+        BDDMockito.given(patternRepository.findById(DEFAULT_ID)).willReturn(optional);
         BDDMockito.given(patternMapper.toGetPatternByIdResponse(optional.get())).willReturn(expected);
 
         GetPatternByIdResponse actual = patternService.getPatternById(DEFAULT_ID);
 
-        Mockito.verify(patternRepository).findById(ArgumentMatchers.any(UUID.class));
+        Mockito.verify(patternRepository).findById(DEFAULT_ID);
         Mockito.verify(patternMapper).toGetPatternByIdResponse(optional.get());
         PatternsDtoAssertions.assertGetPatternByIdResponseEquals(actual, expected);
     }
 
     @Test
     void getPatternById_notFound_throwsPatternNotFoundException() {
-        BDDMockito.given(patternRepository.findById(ArgumentMatchers.any(UUID.class))).willReturn(Optional.empty());
+        BDDMockito.given(patternRepository.findById(DEFAULT_ID)).willReturn(Optional.empty());
 
         Assertions.assertThatExceptionOfType(PatternNotFoundException.class)
-                .isThrownBy(() -> patternService.getPatternById(DEFAULT_ID)).withMessage(String.format("Pattern not " +
-                        "found with ID: %s", DEFAULT_ID));
+                .isThrownBy(() -> patternService.getPatternById(DEFAULT_ID))
+                .withMessage(String.format("Pattern not " + "found with ID: %s", DEFAULT_ID));
     }
 
     @Test
     void deletePatternById_callsRepository() {
-        BDDMockito.given(patternRepository.existsById(ArgumentMatchers.any(UUID.class))).willReturn(true);
-        BDDMockito.doNothing().when(patternRepository).deleteById(ArgumentMatchers.any(UUID.class));
+        BDDMockito.given(patternRepository.existsById(DEFAULT_ID)).willReturn(true);
+        BDDMockito.doNothing().when(patternRepository).deleteById(DEFAULT_ID);
 
         patternService.deletePatternById(DEFAULT_ID);
 
-        Mockito.verify(patternRepository).existsById(ArgumentMatchers.any(UUID.class));
-        Mockito.verify(patternRepository).deleteById(ArgumentMatchers.any(UUID.class));
+        Mockito.verify(patternRepository).existsById(DEFAULT_ID);
+        Mockito.verify(patternRepository).deleteById(DEFAULT_ID);
     }
 
     @Test
     void deletePatternById_notFound_throwsPatternNotFoundException() {
-        BDDMockito.given(patternRepository.existsById(ArgumentMatchers.any(UUID.class))).willReturn(false);
+        BDDMockito.given(patternRepository.existsById(DEFAULT_ID)).willReturn(false);
 
         Assertions.assertThatExceptionOfType(PatternNotFoundException.class)
                 .isThrownBy(() -> patternService.deletePatternById(DEFAULT_ID))

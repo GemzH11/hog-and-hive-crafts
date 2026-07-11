@@ -62,8 +62,10 @@ class DeletePatternByIdIT extends AbstractIT {
         pattern = patternRepository.save(pattern);
         file = fileRepository.save(file);
 
-        given().when().delete(String.format("/api/patterns/v1/%s", pattern.getId()))
-                .then().statusCode(204);
+        given().when()
+                .delete(String.format("/api/patterns/%s", pattern.getId()))
+                .then()
+                .statusCode(204);
 
         // Check that the files have actually been deleted
         Assertions.assertFalse(patternRepository.findById(pattern.getId()).isPresent());
@@ -75,8 +77,10 @@ class DeletePatternByIdIT extends AbstractIT {
      */
     @Test
     void deletePatternById_patternNotFound_returns404() {
-        given().when().delete(String.format("/api/patterns/v1/%s", DEFAULT_ID))
-                .then().statusCode(404)
+        given().when()
+                .delete(String.format("/api/patterns/%s", DEFAULT_ID))
+                .then()
+                .statusCode(404)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is(String.format("Pattern not found with ID: %s", DEFAULT_ID)));
     }
@@ -86,8 +90,10 @@ class DeletePatternByIdIT extends AbstractIT {
      */
     @Test
     void deletePatternById_invalidId_returns400() {
-        given().when().delete("/api/patterns/v1/INVALID")
-                .then().statusCode(400)
+        given().when()
+                .delete("/api/patterns/INVALID")
+                .then()
+                .statusCode(400)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is("Invalid request"))
                 .body("errors", Matchers.hasSize(1))

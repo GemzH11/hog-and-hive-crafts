@@ -2,6 +2,7 @@ package uk.co.hogandhivecrafts.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,11 +55,10 @@ public class PatternService {
      * @return the GetPatternByIdResponse containing the pattern details
      */
     public GetPatternByIdResponse getPatternById(UUID id) {
-        Pattern pattern = patternRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("Pattern with id {} not found", id);
-                    return new PatternNotFoundException(id);
-                });
+        Pattern pattern = patternRepository.findById(id).orElseThrow(() -> {
+            log.warn("Pattern with id {} not found", id);
+            return new PatternNotFoundException(id);
+        });
 
         return patternMapper.toGetPatternByIdResponse(pattern);
     }
@@ -74,9 +74,17 @@ public class PatternService {
             throw new PatternNotFoundException(id);
         }
 
-        // Corresponding files deleted also due to cascade on delete
-        patternRepository.deleteById(id);
-        log.info("Pattern with id {} deleted successfully", id);
+        try {
+            // Corresponding files deleted also due to cascade on delete
+            patternRepository.deleteById(id);
+            log.info("Pattern with id {} deleted successfully", id);
+            // Catch to prevent race condition
+        } catch (EmptyResultDataAccessException _) {
+            log.warn("Pattern with id {} not found for deletion", id);
+            throw new PatternNotFoundException(id);
+        }
+
+
     }
 
     /**
