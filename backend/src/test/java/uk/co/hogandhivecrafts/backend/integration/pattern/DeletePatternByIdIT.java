@@ -3,32 +3,30 @@ package uk.co.hogandhivecrafts.backend.integration.pattern;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.entity.File;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.entity.User;
 import uk.co.hogandhivecrafts.backend.integration.AbstractIT;
 import uk.co.hogandhivecrafts.backend.integration.support.FileITData;
-import uk.co.hogandhivecrafts.backend.integration.support.ITAssertions;
 import uk.co.hogandhivecrafts.backend.integration.support.PatternITData;
 import uk.co.hogandhivecrafts.backend.integration.support.UserITData;
 import uk.co.hogandhivecrafts.backend.repository.FileRepository;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
 import uk.co.hogandhivecrafts.backend.repository.UserRepository;
 
-import java.util.List;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 
 /**
- * Integration tests for retrieving a single pattern by ID.
+ * Integration tests for deleting a single pattern by ID
  */
-class GetPatternByIdIT extends AbstractIT {
+class DeletePatternByIdIT extends AbstractIT {
     private static final UUID DEFAULT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     @LocalServerPort
@@ -52,10 +50,10 @@ class GetPatternByIdIT extends AbstractIT {
     }
 
     /**
-     * Verifies that an existing pattern is returned with its full details, including file IDs.
+     * Verifies that an existing pattern and corresponding files are deleted successfully, returning a 204 response.
      */
     @Test
-    void getPatternById_patternExists_returns200AndPattern() {
+    void deletePatternById_patternExists_returns204() {
         User user = UserITData.buildMinimal(0);
         Pattern pattern = PatternITData.buildDefault(0, user);
         File file = FileITData.buildMinimal(0, pattern);
@@ -64,22 +62,20 @@ class GetPatternByIdIT extends AbstractIT {
         pattern = patternRepository.save(pattern);
         file = fileRepository.save(file);
 
-        List<UUID> patternFileIds = List.of(file.getId());
+        given().when().delete(String.format("/api/patterns/v1/%s", pattern.getId()))
+                .then().statusCode(204);
 
-        GetPatternByIdResponse response = given().when().get(String.format("/api/patterns/v1/%s", pattern.getId()))
-                .then().statusCode(200)
-                .contentType(ContentType.JSON)
-                .extract().as(GetPatternByIdResponse.class);
-
-        ITAssertions.assertPatternEquals(pattern, patternFileIds, response);
+        // Check that the files have actually been deleted
+        Assertions.assertFalse(patternRepository.findById(pattern.getId()).isPresent());
+        Assertions.assertFalse(fileRepository.findById(file.getId()).isPresent());
     }
 
     /**
      * Verifies that requesting a missing pattern ID returns a 404 response.
      */
     @Test
-    void getPatternById_patternNotFound_returns404() {
-        given().when().get(String.format("/api/patterns/v1/%s", DEFAULT_ID))
+    void deletePatternById_patternNotFound_returns404() {
+        given().when().delete(String.format("/api/patterns/v1/%s", DEFAULT_ID))
                 .then().statusCode(404)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is(String.format("Pattern not found with ID: %s", DEFAULT_ID)));
@@ -89,12 +85,13 @@ class GetPatternByIdIT extends AbstractIT {
      * Verifies that an invalid UUID path parameter is rejected with a 400 response.
      */
     @Test
-    void getPatternById_InvalidId_returns400() {
-        given().when().get("/api/patterns/v1/INVALID")
+    void deletePatternById_invalidId_returns400() {
+        given().when().delete("/api/patterns/v1/INVALID")
                 .then().statusCode(400)
                 .contentType(ContentType.JSON)
                 .body("message", Matchers.is("Invalid request"))
                 .body("errors", Matchers.hasSize(1))
                 .body("errors[0]", Matchers.is("Invalid value for ID path parameter: INVALID (expected UUID)"));
     }
+
 }

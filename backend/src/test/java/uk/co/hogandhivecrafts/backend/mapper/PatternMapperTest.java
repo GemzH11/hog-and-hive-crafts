@@ -14,7 +14,7 @@ import uk.co.hogandhivecrafts.backend.support.testdata.EntityTestData;
 import java.util.List;
 import java.util.UUID;
 
-public class PatternMapperTest {
+class PatternMapperTest {
     private final PatternMapper mapper = new PatternMapper();
 
     @Test

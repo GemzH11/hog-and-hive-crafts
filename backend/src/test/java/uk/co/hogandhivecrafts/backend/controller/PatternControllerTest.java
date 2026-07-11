@@ -29,7 +29,7 @@ import java.util.UUID;
 
 @WebMvcTest(controllers = PatternController.class)
 @Import(CorsProperties.class)
-public class PatternControllerTest {
+class PatternControllerTest {
     private static final UUID DEFAULT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     @Autowired
@@ -189,12 +189,41 @@ public class PatternControllerTest {
     }
 
     @Test
-    void getPatternById_InvalidId_returns400() throws Exception {
+    void getPatternById_invalidId_returns400() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/patterns/v1/INVALID"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]")
                         .value("Invalid value for ID path parameter: INVALID (expected UUID)"));
+    }
 
+    @Test
+    void deletePatternById_patternExists_returns204() throws Exception {
+        BDDMockito.doNothing()
+                .when(patternService).deletePatternById(ArgumentMatchers.any(UUID.class));
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(String.format("/api/patterns/v1/%s", DEFAULT_ID)))
+                .andExpect(MockMvcResultMatchers.status().isNoContent())
+                .andExpect(MockMvcResultMatchers.content().string(""));
+    }
+
+    @Test
+    void deletePatternById_patternNotFound_returns404() throws Exception {
+        BDDMockito.willThrow(new PatternNotFoundException(DEFAULT_ID))
+                .given(patternService).deletePatternById(ArgumentMatchers.any(UUID.class));
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(String.format("/api/patterns/v1/%s", DEFAULT_ID)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message")
+                        .value("Pattern not found with ID: 00000000-0000-0000-0000-000000000000"));
+    }
+
+    @Test
+    void deletePatternById_invalidId_returns400() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/patterns/v1/INVALID"))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.errors[0]")
+                        .value("Invalid value for ID path parameter: INVALID (expected UUID)"));
     }
 }

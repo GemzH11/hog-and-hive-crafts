@@ -32,7 +32,7 @@ import static io.restassured.RestAssured.given;
 /**
  * Integration tests for listing patterns with pagination and validation.
  */
-public class GetAllPatternsIT extends AbstractIT {
+class GetAllPatternsIT extends AbstractIT {
     @LocalServerPort
     protected int port;
 

@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
 import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
@@ -46,5 +43,16 @@ public class PatternController {
     @GetMapping("/v1/{id}")
     public ResponseEntity<GetPatternByIdResponse> getPatternById(@PathVariable("id") UUID id) {
         return ResponseEntity.ok().body(patternService.getPatternById(id));
+    }
+
+    /**
+     * Deletes a pattern by its ID, including any associated files
+     *
+     * @param id the ID of the pattern to delete
+     */
+    @DeleteMapping("/v1/{id}")
+    public ResponseEntity<Void> deletePatternById(@PathVariable("id") UUID id) {
+        patternService.deletePatternById(id);
+        return ResponseEntity.noContent().build();
     }
 }

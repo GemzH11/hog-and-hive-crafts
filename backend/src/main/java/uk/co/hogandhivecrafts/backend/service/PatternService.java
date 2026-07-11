@@ -64,6 +64,22 @@ public class PatternService {
     }
 
     /**
+     * Deletes a pattern by its ID, including any associated files
+     *
+     * @param id the ID of the pattern to delete
+     */
+    public void deletePatternById(UUID id) {
+        if (!patternRepository.existsById(id)) {
+            log.warn("Pattern with id {} not found for deletion", id);
+            throw new PatternNotFoundException(id);
+        }
+
+        // Corresponding files deleted also due to cascade on delete
+        patternRepository.deleteById(id);
+        log.info("Pattern with id {} deleted successfully", id);
+    }
+
+    /**
      * Converts the GetAllPatternsRequest into a Pageable object, applying default pagination values if not provided
      *
      * @param request the GetAllPatternsRequest containing pagination parameters (page number and page size)

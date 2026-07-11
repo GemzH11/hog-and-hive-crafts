@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
-public class PatternServiceTest {
+class PatternServiceTest {
     private static final int PAGE_DEFAULT = 20;
     private static final int PAGE = 1;
     private static final int SIZE = 10;
@@ -90,7 +90,7 @@ public class PatternServiceTest {
         Mockito.verify(patternRepository).findAll(captor.capture());
         Pageable pageable = captor.getValue();
 
-        Assertions.assertThat(pageable.getPageNumber()).isEqualTo(0);
+        Assertions.assertThat(pageable.getPageNumber()).isZero();
         Assertions.assertThat(pageable.getPageSize()).isEqualTo(PAGE_DEFAULT);
 
         Sort sort = pageable.getSort();
@@ -140,4 +140,23 @@ public class PatternServiceTest {
                         "found with ID: %s", DEFAULT_ID));
     }
 
+    @Test
+    void deletePatternById_callsRepository() {
+        BDDMockito.given(patternRepository.existsById(ArgumentMatchers.any(UUID.class))).willReturn(true);
+        BDDMockito.doNothing().when(patternRepository).deleteById(ArgumentMatchers.any(UUID.class));
+
+        patternService.deletePatternById(DEFAULT_ID);
+
+        Mockito.verify(patternRepository).existsById(ArgumentMatchers.any(UUID.class));
+        Mockito.verify(patternRepository).deleteById(ArgumentMatchers.any(UUID.class));
+    }
+
+    @Test
+    void deletePatternById_notFound_throwsPatternNotFoundException() {
+        BDDMockito.given(patternRepository.existsById(ArgumentMatchers.any(UUID.class))).willReturn(false);
+
+        Assertions.assertThatExceptionOfType(PatternNotFoundException.class)
+                .isThrownBy(() -> patternService.deletePatternById(DEFAULT_ID))
+                .withMessage(String.format("Pattern not found with ID: %s", DEFAULT_ID));
+    }
 }

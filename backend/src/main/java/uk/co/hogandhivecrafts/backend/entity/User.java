@@ -91,4 +91,9 @@ public class User {
         if (!(o instanceof User other)) return false;
         return id != null && id.equals(other.id);
     }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }
