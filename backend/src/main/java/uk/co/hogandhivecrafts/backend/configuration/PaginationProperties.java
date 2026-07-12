@@ -5,9 +5,11 @@ import org.springframework.data.domain.Sort;
 import uk.co.hogandhivecrafts.backend.model.PatternSortField;
 
 /**
- * Configuration properties for pagination defaults, loaded from application.yml under "app.pagination" prefix.
- * <p>
- * These properties define the default values used when clients do not specify pagination parameters
+ * Configuration properties for pagination defaults, loaded from application.yml under "app
+ * .pagination" prefix.
+ *
+ * <p>These properties define the default values used when clients do not specify pagination
+ * parameters
  * in their API requests. All properties are required and must be configured in application.yml.
  *
  * @param defaultPageSize         the default number of items per page (must be between 1-100)

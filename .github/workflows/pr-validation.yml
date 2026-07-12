@@ -26,3 +26,24 @@ jobs:
         run: |
           cd backend
           mvn clean package -DskipTests
+
+  lint:
+    name: Lint (Checkstyle)
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Checkstyle
+        run: |
+          cd backend
+          mvn checkstyle:check

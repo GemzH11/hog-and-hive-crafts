@@ -7,14 +7,14 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * Base class for integration tests.
- * <p>
- * Uses the Testcontainers Singleton Container Pattern: the PostgreSQL container is started once
+ *
+ * <p>Uses the Testcontainers Singleton Container Pattern: the PostgreSQL container is started once
  * in a static initialiser and shared across all integration test classes in the same JVM run.
  * This ensures that Spring's application context cache always sees the same JDBC URL, preventing
  * connection failures that would otherwise occur when the container is restarted between test
  * classes and Spring reuses a cached context that points to the old (now stopped) container port.
- * <p>
- * The container is cleaned up automatically by the Testcontainers Ryuk resource reaper when the
+ *
+ * <p>The container is cleaned up automatically by the Testcontainers Ryuk resource reaper when the
  * JVM exits, so there is no need to annotate it with {@code @Container} or the class with
  * {@code @Testcontainers}.
  */

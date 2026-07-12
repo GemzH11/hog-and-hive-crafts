@@ -1,5 +1,6 @@
 package uk.co.hogandhivecrafts.backend.service;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,94 +19,99 @@ import uk.co.hogandhivecrafts.backend.mapper.PatternMapper;
 import uk.co.hogandhivecrafts.backend.model.PatternSortField;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
 
-import java.util.UUID;
-
 /**
- * Service layer is where all the business logic lies
+ * Service layer is where all the business logic lies.
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j // Automates creation of logger within class to facilitate message logging
 
 public class PatternService {
-    private final PatternRepository patternRepository;
+  private final PatternRepository patternRepository;
 
-    private final PatternMapper patternMapper;
+  private final PatternMapper patternMapper;
 
-    private final PaginationProperties paginationProperties;
+  private final PaginationProperties paginationProperties;
 
-    /**
-     * Fetches all patterns using optional pagination parameters provided in the request
-     *
-     * @param request the GetAllPatternsRequest containing pagination parameters (page number and page size)
-     * @return a GetAllPatternsResponse containing a paginated list of patterns and pagination metadata
-     */
-    public GetAllPatternsResponse getAllPatterns(GetAllPatternsRequest request) {
+  /**
+   * Fetches all patterns using optional pagination parameters provided in the request.
+   *
+   * @param request the request containing pagination parameters.
+   * @return a response containing a paginated list of patterns and pagination metadata.
+   */
+  public GetAllPatternsResponse getAllPatterns(GetAllPatternsRequest request) {
 
-        Pageable pageable = toPageable(request);
-        Page<Pattern> patterns = patternRepository.findAll(pageable);
+    Pageable pageable = toPageable(request);
+    Page<Pattern> patterns = patternRepository.findAll(pageable);
 
-        return patternMapper.toGetAllPatternsResponse(patterns);
+    return patternMapper.toGetAllPatternsResponse(patterns);
+  }
+
+  /**
+   * Fetches a pattern by its ID.
+   *
+   * @param id the ID of the pattern to fetch
+   * @return the GetPatternByIdResponse containing the pattern details
+   */
+  public GetPatternByIdResponse getPatternById(UUID id) {
+    Pattern pattern = patternRepository.findById(id).orElseThrow(() -> {
+      log.warn("Pattern with id {} not found", id);
+      return new PatternNotFoundException(id);
+    });
+
+    return patternMapper.toGetPatternByIdResponse(pattern);
+  }
+
+  /**
+   * Deletes a pattern by its ID, including any associated files.
+   *
+   * @param id the ID of the pattern to delete
+   */
+  public void deletePatternById(UUID id) {
+    if (!patternRepository.existsById(id)) {
+      log.warn("Pattern with id {} not found for deletion", id);
+      throw new PatternNotFoundException(id);
     }
 
-    /**
-     * Fetches a pattern by its ID
-     *
-     * @param id the ID of the pattern to fetch
-     * @return the GetPatternByIdResponse containing the pattern details
-     */
-    public GetPatternByIdResponse getPatternById(UUID id) {
-        Pattern pattern = patternRepository.findById(id).orElseThrow(() -> {
-            log.warn("Pattern with id {} not found", id);
-            return new PatternNotFoundException(id);
-        });
-
-        return patternMapper.toGetPatternByIdResponse(pattern);
+    try {
+      // Corresponding files deleted also due to cascade on delete
+      patternRepository.deleteById(id);
+      log.info("Pattern with id {} deleted successfully", id);
+      // Catch to prevent race condition
+    } catch (EmptyResultDataAccessException ignored) {
+      log.warn("Pattern with id {} not found for deletion", id);
+      throw new PatternNotFoundException(id);
     }
 
-    /**
-     * Deletes a pattern by its ID, including any associated files
-     *
-     * @param id the ID of the pattern to delete
-     */
-    public void deletePatternById(UUID id) {
-        if (!patternRepository.existsById(id)) {
-            log.warn("Pattern with id {} not found for deletion", id);
-            throw new PatternNotFoundException(id);
-        }
 
-        try {
-            // Corresponding files deleted also due to cascade on delete
-            patternRepository.deleteById(id);
-            log.info("Pattern with id {} deleted successfully", id);
-            // Catch to prevent race condition
-        } catch (EmptyResultDataAccessException ignored) {
-            log.warn("Pattern with id {} not found for deletion", id);
-            throw new PatternNotFoundException(id);
-        }
+  }
 
+  /**
+   * Converts the GetAllPatternsRequest into a Pageable object, applying default pagination values
+   * if not provided.
+   *
+   * @param request the GetAllPatternsRequest containing pagination parameters (page number and page
+   *                size)
+   * @return a Pageable object constructed from the request parameters, with defaults applied as
+   *     necessary
+   */
+  private Pageable toPageable(GetAllPatternsRequest request) {
+    int page = request.page() == null ? 0 : request.page();
+    int size = request.size() == null ? paginationProperties.defaultPageSize() : request.size();
+    Sort.Direction direction = request.sortDirection() == null
+                               ? paginationProperties.defaultSortDirection()
+                               : request.sortDirection();
+    PatternSortField sortField = request.sortField() == null
+                                 ? paginationProperties.defaultPatternSortField()
+                                 : request.sortField();
+    Sort sort;
 
+    if (sortField == PatternSortField.ID) {
+      sort = Sort.by(direction, sortField.getValue());
+    } else {
+      sort = Sort.by(direction, sortField.getValue()).and(Sort.by(direction, "id"));
     }
 
-    /**
-     * Converts the GetAllPatternsRequest into a Pageable object, applying default pagination values if not provided
-     *
-     * @param request the GetAllPatternsRequest containing pagination parameters (page number and page size)
-     * @return a Pageable object constructed from the request parameters, with defaults applied as necessary
-     */
-    private Pageable toPageable(GetAllPatternsRequest request) {
-        int page = request.page() == null ? 0 : request.page();
-        int size = request.size() == null ? paginationProperties.defaultPageSize() : request.size();
-        Sort.Direction direction = request.sortDirection() == null ? paginationProperties.defaultSortDirection() : request.sortDirection();
-        PatternSortField sortField = request.sortField() == null ? paginationProperties.defaultPatternSortField() : request.sortField();
-        Sort sort;
-
-        if (sortField == PatternSortField.ID) {
-            sort = Sort.by(direction, sortField.getValue());
-        } else {
-            sort = Sort.by(direction, sortField.getValue()).and(Sort.by(direction, "id"));
-        }
-
-        return PageRequest.of(page, size, sort);
-    }
+    return PageRequest.of(page, size, sort);
+  }
 }
