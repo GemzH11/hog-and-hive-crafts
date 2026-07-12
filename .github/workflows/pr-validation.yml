@@ -94,7 +94,6 @@ jobs:
         uses: jetbrains/qodana-action@107939d10e5ddbffb88bc5dd279934314937ed7a # v2026.1.3
         with:
           args: --only-directory backend
-          linter: jetbrains/qodana-jvm-community:latest
           cache-dir: ${{ runner.temp }}/qodana/cache
           results-dir: ${{ runner.temp }}/qodana/results
 
