@@ -16,8 +16,12 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 // beans with values bound from application.yml.
 @ConfigurationPropertiesScan
 public class BackendApplication {
-  @SuppressWarnings("checkstyle:MissingJavadocMethod")
-  static void main(String[] args) {
+  /**
+   * Application entry point.
+   *
+   * @param args command-line arguments
+   */
+  public static void main(String[] args) {
     SpringApplication.run(BackendApplication.class, args);
   }
 
