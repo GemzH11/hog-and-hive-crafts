@@ -1,0 +1,28 @@
+name: PR Validation - Backend
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/pr-validation.yml'
+
+jobs:
+  build:
+    name: Build (skip tests)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+      
+      - name: Build backend (skip tests)
+        run: |
+          cd backend
+          mvn clean package -DskipTests
