@@ -196,6 +196,7 @@
                         <configuration>
                             <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
                             <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+                        </configuration>
                     </execution>
                     <!-- Enforce coverage thresholds -->
                     <execution>
