@@ -107,7 +107,7 @@ public class GlobalExceptionHandler {
     Class<?> requiredType = ex.getRequiredType();
     String expected = requiredType != null ? requiredType.getSimpleName() : null;
     String errorDetail = expected != null
-                         ? String.format("Invalid value for %s path parameter:%s (expected %s)",
+                         ? String.format("Invalid value for %s path parameter: %s (expected %s)",
                                          paramName.toUpperCase(), valueStr, expected)
                          : String.format("Invalid value for %s path parameter: %s",
                                          paramName.toUpperCase(),

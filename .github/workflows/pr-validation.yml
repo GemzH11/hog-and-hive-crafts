@@ -47,3 +47,61 @@ jobs:
         run: |
           cd backend
           mvn checkstyle:check
+    
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+      
+      - name: Run unit tests
+        run: |
+          cd backend
+          mvn clean test -Punit
+      
+      - name: Upload unit test coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jacoco-ut-coverage
+          path: backend/target/jacoco-ut.exec
+          retention-days: 1   
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+      
+      - name: Run integration tests
+        run: |
+          cd backend
+          mvn clean verify -Pintegration
+      
+      - name: Upload integration test coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jacoco-it-coverage
+          path: backend/target/jacoco-it.exec
+          retention-days: 1          
