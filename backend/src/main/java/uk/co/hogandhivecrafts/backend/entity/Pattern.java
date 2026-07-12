@@ -3,6 +3,7 @@ package uk.co.hogandhivecrafts.backend.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -80,7 +81,7 @@ public class Pattern {
    */
   @Column(name = "craft_type", nullable = false)
   @ToString.Include
-  @Enumerated
+  @Enumerated(EnumType.STRING)
   private CraftType craftType;
 
   /**

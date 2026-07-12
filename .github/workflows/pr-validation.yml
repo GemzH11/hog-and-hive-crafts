@@ -67,7 +67,7 @@ jobs:
       - name: Run unit tests
         run: |
           cd backend
-          mvn clean test -Punit
+          mvn test -Punit
       
       - name: Upload unit test coverage
         if: always()
@@ -91,7 +91,7 @@ jobs:
 
 #      Backend only analysis
       - name: Run Quodana
-        uses: jetbrains/qodana-action@v2026.1.3
+        uses: jetbrains/qodana-action@107939d10e5ddbffb88bc5dd279934314937ed7a # v2026.1.3
         with:
           args: --source-directory,backend
           cache-dir: ${{ runner.temp }}/qodana/cache
@@ -124,7 +124,7 @@ jobs:
       - name: Run integration tests
         run: |
           cd backend
-          mvn clean verify -Pintegration
+          mvn verify -Pintegration
       
       - name: Upload integration test coverage
         if: always()
@@ -166,7 +166,7 @@ jobs:
       - name: Merge coverage reports and generate report
         run: |
           cd backend
-          mvn jacoco:merge@merge jacoco:report@report jacoco:check@check
+          mvn verify -Pcoverage
 
       - name: Upload coverage report
         if: always()
