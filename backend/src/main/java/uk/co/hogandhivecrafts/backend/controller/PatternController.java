@@ -1,19 +1,23 @@
 package uk.co.hogandhivecrafts.backend.controller;
 
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
 import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.service.PatternService;
 
-import java.util.UUID;
-
 /**
- * Controller class is where all the user requests are handled and required/appropriate responses are sent
+ * Controller class is where all the user requests are handled and required/appropriate responses.
+ * are sent
  */
 @RestController
 @RequestMapping("/patterns")
@@ -21,38 +25,39 @@ import java.util.UUID;
 @Validated
 public class PatternController {
 
-    private final PatternService patternService;
+  private final PatternService patternService;
 
-    /**
-     * Fetches all patterns using optional pagination parameters provided in the request,
-     * and returns a paginated list of patterns in the response
-     *
-     * @return list of paginated patterns
-     */
-    @GetMapping
-    public ResponseEntity<GetAllPatternsResponse> getAllPatterns(@Valid GetAllPatternsRequest request) {
-        return ResponseEntity.ok().body(patternService.getAllPatterns(request));
-    }
+  /**
+   * Fetches all patterns using optional pagination parameters provided in the request, and returns
+   * a paginated list of patterns in the response.
+   *
+   * @return list of paginated patterns
+   */
+  @GetMapping
+  public ResponseEntity<GetAllPatternsResponse> getAllPatterns(
+      @Valid GetAllPatternsRequest request) {
+    return ResponseEntity.ok().body(patternService.getAllPatterns(request));
+  }
 
-    /**
-     * Fetches a pattern by its ID and returns the pattern details in the response
-     *
-     * @param id the ID of the pattern to fetch
-     * @return the GetPatternByIdResponse containing the pattern details
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<GetPatternByIdResponse> getPatternById(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok().body(patternService.getPatternById(id));
-    }
+  /**
+   * Fetches a pattern by its ID and returns the pattern details in the response.
+   *
+   * @param id the ID of the pattern to fetch
+   * @return the GetPatternByIdResponse containing the pattern details
+   */
+  @GetMapping("/{id}")
+  public ResponseEntity<GetPatternByIdResponse> getPatternById(@PathVariable("id") UUID id) {
+    return ResponseEntity.ok().body(patternService.getPatternById(id));
+  }
 
-    /**
-     * Deletes a pattern by its ID, including any associated files
-     *
-     * @param id the ID of the pattern to delete
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePatternById(@PathVariable("id") UUID id) {
-        patternService.deletePatternById(id);
-        return ResponseEntity.noContent().build();
-    }
+  /**
+   * Deletes a pattern by its ID, including any associated files.
+   *
+   * @param id the ID of the pattern to delete
+   */
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deletePatternById(@PathVariable("id") UUID id) {
+    patternService.deletePatternById(id);
+    return ResponseEntity.noContent().build();
+  }
 }

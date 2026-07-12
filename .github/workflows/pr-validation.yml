@@ -1,0 +1,177 @@
+name: PR Validation - Backend
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/pr-validation.yml'
+
+jobs:
+  build:
+    name: Build (skip tests)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+      
+      - name: Build backend (skip tests)
+        run: |
+          cd backend
+          mvn clean package -DskipTests
+
+  lint:
+    name: Lint (Checkstyle)
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Checkstyle
+        run: |
+          cd backend
+          mvn checkstyle:check
+    
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+      
+      - name: Run unit tests
+        run: |
+          cd backend
+          mvn test -Punit
+      
+      - name: Upload unit test coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jacoco-ut-coverage
+          path: backend/target/jacoco-ut.exec
+          retention-days: 1   
+
+  static-analysis:
+    name: Static Analysis (Quodana)
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+#      Check out all the code so that Quodana can analyze it
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+#      Backend only analysis
+      - name: Run Quodana
+        uses: jetbrains/qodana-action@107939d10e5ddbffb88bc5dd279934314937ed7a # v2026.1.3
+        with:
+          args: --only-directory backend
+          cache-dir: ${{ runner.temp }}/qodana/cache
+          results-dir: ${{ runner.temp }}/qodana/results
+
+      - name: Upload Quodana report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: qodana-report
+          path: ${{ runner.temp }}/qodana/results
+          retention-days: 7
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+      
+      - name: Run integration tests
+        run: |
+          cd backend
+          mvn verify -Pintegration
+      
+      - name: Upload integration test coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jacoco-it-coverage
+          path: backend/target/jacoco-it.exec
+          retention-days: 1
+
+  coverage-report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: [ unit-tests, integration-tests ]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Download unit test coverage
+        uses: actions/download-artifact@v8
+        with:
+          name: jacoco-ut-coverage
+          path: backend/target/
+
+      - name: Download integration test coverage
+        uses: actions/download-artifact@v8
+        with:
+          name: jacoco-it-coverage
+          path: backend/target/
+
+      - name: Merge coverage reports and generate report
+        run: |
+          cd backend
+          mvn verify -Pcoverage
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: backend/target/site/jacoco/
+          retention-days: 7
