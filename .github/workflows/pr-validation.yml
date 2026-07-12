@@ -91,7 +91,7 @@ jobs:
 
 #      Backend only analysis
       - name: Run Quodana
-        uses: jetbrains/qodana-action@v2026
+        uses: jetbrains/qodana-action@v2026.1.3
         with:
           args: --source-directory,backend
           cache-dir: ${{ runner.temp }}/qodana/cache
