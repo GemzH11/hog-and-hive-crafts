@@ -1,6 +1,6 @@
 ---
 description: 'Keep README and documentation aligned with behavior, APIs, setup, and developer workflows'
-applyTo: '**/*.md, **/*.java, **/*.ts, **/*.tsx, **/*.js, **/*.jsx, **/*.yml, **/*.yaml'
+applyTo: '**/*.md, **/*.dbml, **/*.java, **/*.ts, **/*.tsx, **/*.js, **/*.jsx, **/*.yml, **/*.yaml'
 ---
 
 # Documentation update instructions

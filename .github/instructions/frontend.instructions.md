@@ -9,8 +9,9 @@ Treat this file as preferred practice for new and changed frontend code. Existin
 
 ## Component and module structure
 
-- Keep page components in `frontend/src/pages` and route wiring in `frontend/src/App.tsx`.
-- Keep HTTP calls in `frontend/src/api` (use shared API helpers instead of duplicating fetch logic in pages).
+- Keep page-level route components in `frontend/src/pages` and route wiring in `frontend/src/App.tsx`.
+- Keep reusable UI components in `frontend/src/components` when pages need shared presentation building blocks.
+- Keep HTTP calls in `frontend/src/api` (use shared API helpers instead of duplicating fetch logic in pages/components).
 - Keep shared domain types in `frontend/src/types`.
 - Keep test/mocking concerns in `frontend/src/test` and `frontend/src/mocks`.
 
