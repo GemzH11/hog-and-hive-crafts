@@ -23,17 +23,14 @@ jobs:
           filters: |
             backend:
               - 'backend/**'
-              - '.github/workflows/pr-validation.yml'
             frontend:
               - 'frontend/**'
-              - '.github/workflows/pr-validation.yml'
             docs:
               - 'documentation/**'
-              - '.github/workflows/pr-validation.yml'
+              - '**/*.md'
             e2e:
               - 'backend/**'
               - 'frontend/**'
-              - '.github/workflows/pr-validation.yml'
 
   build:
     name: Backend / Build
