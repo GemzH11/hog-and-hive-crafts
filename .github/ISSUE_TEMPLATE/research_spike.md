@@ -7,11 +7,11 @@ assignees: ''
 
 ---
 
-### Context
+## Context
 Outline the reason and context for the spike. What is the knowledge, skill or technology gap?
 
-### Goals
+## Goals
 What are the goals and deliverables of this spike?
 
-### Planning Notes
+## Planning Notes
 Outline a proposed plan for how this spike can be undertaken.
