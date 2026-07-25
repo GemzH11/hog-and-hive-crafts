@@ -43,7 +43,7 @@
     "jsdom": "^29.0.1",
     "msw": "^2.13.0",
     "playwright": "^1.59.1",
-    "postcss": "^8.5.13",
+    "postcss": "^8.5.23",
     "tailwindcss": "^4.2.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.57.0",
