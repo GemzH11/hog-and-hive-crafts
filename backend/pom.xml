@@ -18,9 +18,11 @@
         <java.version>25</java.version>
         <skipITs>false</skipITs>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <!-- JaCoCo XML report produced by the merge+report executions in the default build -->
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.build.directory}/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <!-- Exclude framework config and JPA entities: no business logic to analyse -->
         <sonar.exclusions>**/configuration/**,**/entity/**</sonar.exclusions>
     </properties>
     <dependencies>
@@ -288,6 +290,9 @@
             </build>
         </profile>
         <profile>
+            <!-- Marker profile: activating -Pcoverage signals coverage-report context.
+                 Tests are skipped via command-line flags in the coverage-report CI job;
+                 the sonar workflow runs tests inline and does not suppress them. -->
             <id>coverage</id>
         </profile>
     </profiles>
