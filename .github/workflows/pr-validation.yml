@@ -1,37 +1,65 @@
-name: PR Validation - Backend
+name: PR Validation
 
 on:
   pull_request:
-    paths:
-      - 'backend/**'
-      - '.github/workflows/pr-validation.yml'
 
 jobs:
-  build:
-    name: Build (skip tests)
+  detect-changes:
+    name: Detect changes
     runs-on: ubuntu-latest
-    
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      docs: ${{ steps.filter.outputs.documentation }}
+      e2e: ${{ steps.filter.outputs.endtoend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - '.github/workflows/pr-validation.yml'
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/pr-validation.yml'
+            documentation:
+              - 'documentation/**'
+              - '.github/workflows/pr-validation.yml'
+            endtoend:
+              - 'backend/**'
+              - 'frontend/**'
+              - '.github/workflows/pr-validation.yml'
+
+  build:
+    name: Backend / Build
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
-      
+
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: 'temurin'
           cache: 'maven'
-      
+
       - name: Build backend (skip tests)
         run: |
           cd backend
           mvn clean package -DskipTests
 
   lint:
-    name: Lint (Checkstyle)
-    runs-on: ubuntu-latest
+    name: Backend / Lint
     needs: build
-    
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -46,58 +74,27 @@ jobs:
       - name: Run Checkstyle
         run: |
           cd backend
-          mvn checkstyle:check
-    
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    needs: lint
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-      
-      - name: Set up Java
-        uses: actions/setup-java@v5
-        with:
-          java-version: '25'
-          distribution: 'temurin'
-          cache: 'maven'
-      
-      - name: Run unit tests
-        run: |
-          cd backend
-          mvn test -Punit
-      
-      - name: Upload unit test coverage
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: jacoco-ut-coverage
-          path: backend/target/jacoco-ut.exec
-          retention-days: 1   
+          mvn checkstyle:check   
 
   static-analysis:
-    name: Static Analysis (Quodana)
-    runs-on: ubuntu-latest
+    name: Backend / Static Analysis
     needs: lint
-
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
     steps:
-#      Check out all the code so that Quodana can analyze it
       - name: Checkout code
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-#      Backend only analysis
-      - name: Run Quodana
-        uses: jetbrains/qodana-action@107939d10e5ddbffb88bc5dd279934314937ed7a # v2026.1.3
+      - name: Run Qodana
+        uses: jetbrains/qodana-action@107939d10e5ddbffb88bc5dd279934314937ed7a
         with:
           args: --only-directory backend
           cache-dir: ${{ runner.temp }}/qodana/cache
           results-dir: ${{ runner.temp }}/qodana/results
 
-      - name: Upload Quodana report
+      - name: Upload Qodana report
         if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -105,27 +102,56 @@ jobs:
           path: ${{ runner.temp }}/qodana/results
           retention-days: 7
 
-  integration-tests:
-    name: Integration Tests
+  unit-tests:
+    name: Backend / Unit Tests
+    needs: lint
+    if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
-    needs: unit-tests
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
-      
+
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: 'temurin'
           cache: 'maven'
-      
+
+      - name: Run unit tests
+        run: |
+          cd backend
+          mvn test -Punit
+
+      - name: Upload unit test coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: jacoco-ut-coverage
+          path: backend/target/jacoco-ut.exec
+          retention-days: 1
+
+  integration-tests:
+    name: Backend / Integration Tests
+    needs: unit-tests
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
       - name: Run integration tests
         run: |
           cd backend
           mvn verify -Pintegration
-      
+
       - name: Upload integration test coverage
         if: always()
         uses: actions/upload-artifact@v7
@@ -135,11 +161,10 @@ jobs:
           retention-days: 1
 
   coverage-report:
-    name: Coverage Report
-    runs-on: ubuntu-latest
+    name: Backend / Coverage
     needs: [ unit-tests, integration-tests ]
-    if: always()
-
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -175,3 +200,113 @@ jobs:
           name: coverage-report
           path: backend/target/site/jacoco/
           retention-days: 7
+
+  backend-gate:
+    name: Backend stream
+    needs:
+      - detect-changes
+      - build
+      - lint
+      - static-analysis
+      - unit-tests
+      - integration-tests
+      - coverage-report
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if backend jobs did not succeed
+        if: |
+          needs.detect-changes.outputs.backend == 'true' && (
+            needs.build.result != 'success' ||
+            needs.lint.result != 'success' ||
+            needs.static-analysis.result != 'success' ||
+            needs.unit-tests.result != 'success' ||
+            needs.integration-tests.result != 'success' ||
+            needs.coverage-report.result != 'success'
+          )
+        run: |
+          echo "Backend was required but one of its jobs failed or was cancelled."
+          exit 1
+
+      - name: Report backend status
+        run: |
+          if [ "${{ needs.detect-changes.outputs.backend }}" = "true" ]; then
+            echo "Backend changes detected and all backend checks passed."
+          else
+            echo "No backend changes detected, skipping backend stream."
+          fi        
+
+  frontend-gate:
+    name: Frontend stream
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run or skip frontend checks
+        run: |
+          if [ "${{ needs.detect-changes.outputs.frontend }}" = "true" ]; then
+            echo "Frontend changes detected: would run frontend checks..."
+          else
+            echo "No frontend changes detected, skipping frontend stream."
+          fi  
+
+  docs-gate:
+    name: Docs stream
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run or skip docs checks
+        run: |
+          if [ "${{ needs.detect-changes.outputs.docs }}" = "true" ]; then
+            echo "Docs or markdown changes detected: running documentation checks..."
+            # Add docs lint / link checks here later
+          else
+            echo "No docs or markdown changes detected, skipping docs stream."
+          fi      
+
+  e2e-tests:
+    name: E2E tests
+    needs: [ detect-changes, backend-gate, frontend-gate ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if E2E is required but upstream failed
+        if: |
+          needs.detect-changes.outputs.e2e == 'true' && (
+            needs.backend-gate.result != 'success' ||
+            needs.frontend-gate.result != 'success'
+          )
+        run: |
+          echo "E2E is required but backend or frontend stream did not pass."
+          exit 1
+
+      - name: Run or skip E2E
+        run: |
+          if [ "${{ needs.detect-changes.outputs.e2e }}" = "true" ]; then
+            echo "Backend or frontend changes detected: would run e2e tests..."
+          else
+            echo "No backend or frontend changes detected, skipping e2e tests."
+          fi
+
+  all-necessary-streams-passed:
+    name: All necessary streams have passed
+    needs: [ backend-gate, frontend-gate, docs-gate, e2e-tests ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all streams
+        if: |
+          needs.backend-gate.result != 'success' ||
+          needs.frontend-gate.result != 'success' ||
+          needs.docs-gate.result != 'success' ||
+          needs.e2e-tests.result != 'success'
+        run: |
+          echo "One or more required streams did not pass."
+          exit 1
+
+      - name: Report
+        run: |
+          echo "All necessary streams have passed."
+          echo "Backend:  ${{ needs.backend-gate.result }}"
+          echo "Frontend: ${{ needs.frontend-gate.result }}"
+          echo "Docs:     ${{ needs.docs-gate.result }}"
+          echo "E2E:      ${{ needs.e2e-tests.result }}"
