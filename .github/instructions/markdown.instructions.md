@@ -29,6 +29,7 @@ applyTo: '**/*.md'
 - Prefer short sentences and common words.
 - Break dense paragraphs into lists/sections.
 - Write navigation steps as explicit text actions; do not rely only on icon descriptions.
+- Record verified current behavior; mark future or proposed behavior explicitly as planned.
 
 ## 5) Lists and emoji
 

@@ -5,11 +5,13 @@ applyTo: '**/*Test.java, **/*IT.java, **/*.test.ts, **/*.test.tsx, **/*.unit.tes
 
 # Testing instructions
 
+Treat this file as the target testing model for new and modified tests. Existing tests may use older placement; keep them stable unless the task requires updates.
+
 ## Test file scope and naming
 
 - Backend unit tests: `*Test.java` (Mockito/JUnit).
 - Backend integration tests: `*IT.java` (Testcontainers + Spring context).
-- Frontend component/API tests: `*.test.ts(x)` and `*.unit.test.ts` (Vitest + Testing Library/MSW).
+- Frontend component/API tests: `*.test.ts(x)` and `*.unit.test.ts` (Vitest + Testing Library/MSW), with new tests preferred under `frontend/src/test` when practical.
 - Frontend E2E tests: `frontend/e2e/*.spec.ts` (Playwright).
 
 ## Structure and readability
@@ -31,7 +33,8 @@ applyTo: '**/*Test.java, **/*IT.java, **/*.test.ts, **/*.test.tsx, **/*.unit.tes
 - Test user-visible behavior and accessible queries (`getByRole`, `findByRole`) before implementation details.
 - Use MSW handlers to control API responses in unit/integration-style frontend tests.
 - Await async UI transitions explicitly (`findBy...`, `waitFor`) instead of timing assumptions.
-- In Playwright tests, keep setup/teardown isolated and resilient (existing helpers in `frontend/e2e/support`).
+- In Playwright tests, keep setup/teardown isolated and resilient (shared helpers in `frontend/e2e/support`).
+- Keep Playwright focused on cross-page/browser workflows rather than low-level component behavior.
 
 ## Coverage expectation
 

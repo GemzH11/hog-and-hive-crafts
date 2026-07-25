@@ -5,6 +5,8 @@ applyTo: '**/*.java'
 
 # Java + Spring backend instructions
 
+Treat this file as best-practice guidance for new and modified backend code. If existing code differs, align touched code toward these conventions without broad unrelated rewrites.
+
 ## Core conventions
 
 - Use constructor injection for required dependencies (`private final` fields; Lombok `@RequiredArgsConstructor` is acceptable).
@@ -16,15 +18,16 @@ applyTo: '**/*.java'
 ## Error handling and logging
 
 - Fail fast on invalid input and edge cases.
-- Throw meaningful domain exceptions (for example `PatternNotFoundException`) and let `GlobalExceptionHandler` map them to HTTP responses.
-- Use structured SLF4J logging (`log.info("... {}", value)`) instead of `System.out.println`.
+- Throw meaningful domain exceptions (for example `*NotFoundException`) and let global exception handling map them to HTTP responses.
+- Use structured SLF4J logging (`log.info("... {}", value)`) instead of `System.out.println` for server diagnostics.
+- Prefer user-safe, actionable error messages in API responses; keep internal details in logs.
 - Never log secrets or sensitive user data.
 
 ## Self-explanatory code and comments
 
 - Prefer clear names and small methods so most code needs no comments.
 - Write comments only when they explain **why** a choice exists (trade-off, external constraint, non-obvious behavior).
-- Remove stale or redundant comments that only restate the code.
+- Remove stale or redundant comments that restate the code.
 
 ## Build and verification
 

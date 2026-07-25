@@ -5,12 +5,21 @@ applyTo: '**/*.ts, **/*.tsx, **/*.js, **/*.jsx'
 
 # Frontend instructions (React + TypeScript)
 
+Treat this file as preferred practice for new and changed frontend code. Existing files may not always match; when touching them, improve alignment without broad unrelated refactors.
+
 ## Component and module structure
 
 - Keep page components in `frontend/src/pages` and route wiring in `frontend/src/App.tsx`.
 - Keep HTTP calls in `frontend/src/api` (use shared API helpers instead of duplicating fetch logic in pages).
 - Keep shared domain types in `frontend/src/types`.
 - Keep test/mocking concerns in `frontend/src/test` and `frontend/src/mocks`.
+
+## Test boundaries and placement
+
+- For new component/API tests, prefer `frontend/src/test` plus shared test helpers/mocks.
+- Existing adjacent `*.test.ts(x)` files in feature folders can remain until touched; do not churn only for relocation.
+- Put browser workflow tests in `frontend/e2e/*.spec.ts` and keep shared E2E support in `frontend/e2e/support`.
+- Keep unit/integration-style frontend tests focused on component behavior and API integration contracts; reserve full navigation/cross-page flows for Playwright.
 
 ## React + TypeScript patterns
 
@@ -28,8 +37,9 @@ applyTo: '**/*.ts, **/*.tsx, **/*.js, **/*.jsx'
 
 ## Error handling
 
-- Surface actionable errors to users (existing pattern: `err instanceof Error ? err.message : "Unknown error"`).
+- Surface actionable errors to users and preserve useful fallback messaging for unknown failures.
 - Do not swallow failed promises silently.
+- Use logging for developer diagnostics only; keep logs concise and avoid noisy `console` output in shipped code.
 - Keep API-origin/mocking behavior compatible with `apiClient` and environment flags.
 
 ## Self-explanatory code and comments

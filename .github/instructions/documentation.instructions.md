@@ -20,6 +20,7 @@ Update `README.md` and/or files under `documentation/` whenever changes affect:
 - Ensure documented commands and snippets match the current codebase and scripts.
 - When code signatures or payload shapes change, update all related examples in the same PR.
 - Prefer short, copy-pastable examples.
+- Document verified current behavior; if behavior is planned but not implemented, label it clearly as planned.
 
 ## Keep documentation concise and navigable
 
