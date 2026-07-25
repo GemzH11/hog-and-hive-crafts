@@ -3,20 +3,21 @@ name: PR Validation
 on:
   pull_request:
 
+permissions: { } # No permissions by default; each job gets only what it needs
+
 jobs:
   detect-changes:
     name: Detect changes
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
-      docs: ${{ steps.filter.outputs.documentation }}
-      e2e: ${{ steps.filter.outputs.endtoend }}
+      docs: ${{ steps.filter.outputs.docs }}
+      e2e: ${{ steps.filter.outputs.e2e }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706
+      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 #v4.0.2
         id: filter
         with:
           filters: |
@@ -26,10 +27,10 @@ jobs:
             frontend:
               - 'frontend/**'
               - '.github/workflows/pr-validation.yml'
-            documentation:
+            docs:
               - 'documentation/**'
               - '.github/workflows/pr-validation.yml'
-            endtoend:
+            e2e:
               - 'backend/**'
               - 'frontend/**'
               - '.github/workflows/pr-validation.yml'
@@ -39,6 +40,9 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -57,9 +61,12 @@ jobs:
 
   lint:
     name: Backend / Lint
-    needs: build
+    needs: [ detect-changes, build ]
     if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -74,13 +81,16 @@ jobs:
       - name: Run Checkstyle
         run: |
           cd backend
-          mvn checkstyle:check   
+          mvn checkstyle:check
 
   static-analysis:
     name: Backend / Static Analysis
-    needs: lint
+    needs: [ detect-changes, lint ]
     if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -104,9 +114,12 @@ jobs:
 
   unit-tests:
     name: Backend / Unit Tests
-    needs: lint
+    needs: [ detect-changes, lint ]
     if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -133,9 +146,12 @@ jobs:
 
   integration-tests:
     name: Backend / Integration Tests
-    needs: unit-tests
+    needs: [ detect-changes, unit-tests ]
     if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -162,9 +178,12 @@ jobs:
 
   coverage-report:
     name: Backend / Coverage
-    needs: [ unit-tests, integration-tests ]
+    needs: [ detect-changes, unit-tests, integration-tests ]
     if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -213,6 +232,7 @@ jobs:
       - coverage-report
     if: always()
     runs-on: ubuntu-latest
+    permissions: { }
     steps:
       - name: Fail if backend jobs did not succeed
         if: |
@@ -240,6 +260,7 @@ jobs:
     name: Frontend stream
     needs: detect-changes
     runs-on: ubuntu-latest
+    permissions: { }
     steps:
       - name: Run or skip frontend checks
         run: |
@@ -253,6 +274,7 @@ jobs:
     name: Docs stream
     needs: detect-changes
     runs-on: ubuntu-latest
+    permissions: { }
     steps:
       - name: Run or skip docs checks
         run: |
@@ -268,6 +290,7 @@ jobs:
     needs: [ detect-changes, backend-gate, frontend-gate ]
     if: always()
     runs-on: ubuntu-latest
+    permissions: { }
     steps:
       - name: Fail if E2E is required but upstream failed
         if: |
@@ -292,6 +315,7 @@ jobs:
     needs: [ backend-gate, frontend-gate, docs-gate, e2e-tests ]
     if: always()
     runs-on: ubuntu-latest
+    permissions: { }
     steps:
       - name: Verify all streams
         if: |
