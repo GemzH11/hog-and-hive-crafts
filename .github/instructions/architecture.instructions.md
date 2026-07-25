@@ -5,13 +5,15 @@ applyTo: '**'
 
 # Architecture conventions
 
+Treat these as target conventions for new and changed code. If existing code differs, move it toward these boundaries incrementally instead of expanding legacy patterns.
+
 ## Keep layer boundaries clear
 
 - Keep Spring controllers in `backend/.../controller` focused on HTTP concerns (request mapping, validation, response status).
 - Keep business logic in `backend/.../service` classes.
 - Keep persistence access in `backend/.../repository` (`JpaRepository` interfaces).
 - Keep API contracts in `backend/.../dto`; map entities to DTOs through `backend/.../mapper`.
-- Keep cross-cutting HTTP error translation in `backend/.../exception` (for example `GlobalExceptionHandler`).
+- Keep cross-cutting HTTP error translation in `backend/.../exception`.
 
 ## Dependency direction
 
