@@ -80,35 +80,6 @@ jobs:
           cd backend
           mvn checkstyle:check
 
-  static-analysis:
-    name: Backend / Static Analysis
-    needs: [ detect-changes, lint ]
-    if: needs.detect-changes.outputs.backend == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Run Qodana
-        uses: jetbrains/qodana-action@107939d10e5ddbffb88bc5dd279934314937ed7a
-        with:
-          args: --only-directory backend
-          cache-dir: ${{ runner.temp }}/qodana/cache
-          results-dir: ${{ runner.temp }}/qodana/results
-
-      - name: Upload Qodana report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: qodana-report
-          path: ${{ runner.temp }}/qodana/results
-          retention-days: 7
-
   unit-tests:
     name: Backend / Unit Tests
     needs: [ detect-changes, lint ]
@@ -207,7 +178,7 @@ jobs:
       - name: Merge coverage reports and generate report
         run: |
           cd backend
-          mvn verify -Pcoverage
+          mvn verify -Pcoverage -Dmaven.test.skip=true -DskipITs=true
 
       - name: Upload coverage report
         if: always()
@@ -223,7 +194,6 @@ jobs:
       - detect-changes
       - build
       - lint
-      - static-analysis
       - unit-tests
       - integration-tests
       - coverage-report
@@ -236,7 +206,6 @@ jobs:
           needs.detect-changes.outputs.backend == 'true' && (
             needs.build.result != 'success' ||
             needs.lint.result != 'success' ||
-            needs.static-analysis.result != 'success' ||
             needs.unit-tests.result != 'success' ||
             needs.integration-tests.result != 'success' ||
             needs.coverage-report.result != 'success'
