@@ -23,17 +23,17 @@ jobs:
           filters: |
             backend:
               - 'backend/**'
-              - `documentation/api/**`
+              - 'documentation/api/**'
             frontend:
               - 'frontend/**'
-              - `documentation/api/**`
+              - 'documentation/api/**'
             docs:
               - 'documentation/**'
               - '**/*.md'
             e2e:
               - 'backend/**'
               - 'frontend/**'
-              - `documentation/api/**`
+              - 'documentation/api/**'
 
   build:
     name: Backend / Build
