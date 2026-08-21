@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsItem;
 import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
 import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
+import uk.co.hogandhivecrafts.backend.dto.PostPatternRequest;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 
 /**
@@ -25,14 +26,9 @@ public class PatternMapper {
    * @return a GetAllPatternsItem DTO containing the pattern's summary information
    */
   public GetAllPatternsItem toGetAllPatternsItem(Pattern pattern) {
-    return new GetAllPatternsItem(
-        pattern.getId(),
-        pattern.getName(),
-        pattern.getCraftType(),
-        pattern.getCreatedAt(),
-        pattern.getUpdatedAt(),
-        pattern.getFileIds()
-    );
+    return new GetAllPatternsItem(pattern.getId(), pattern.getName(), pattern.getCraftType(),
+                                  pattern.getCreatedAt(), pattern.getUpdatedAt(),
+                                  pattern.getFileIds());
   }
 
   /**
@@ -47,10 +43,9 @@ public class PatternMapper {
                                                .stream()
                                                .map(this::toGetAllPatternsItem)
                                                .toList();
-    return new GetAllPatternsResponse(
-        content, patterns.getTotalElements(), patterns.getTotalPages(), patterns.getNumber(),
-        patterns.getSize()
-    );
+    return new GetAllPatternsResponse(content, patterns.getTotalElements(),
+                                      patterns.getTotalPages(), patterns.getNumber(),
+                                      patterns.getSize());
   }
 
   /**
@@ -62,16 +57,21 @@ public class PatternMapper {
    * @return a GetPatternByIdResponse DTO containing the full pattern information
    */
   public GetPatternByIdResponse toGetPatternByIdResponse(Pattern pattern) {
-    return new GetPatternByIdResponse(
-        pattern.getId(),
-        pattern.getName(),
-        pattern.getSource(),
-        pattern.getCraftType(),
-        pattern.getNotes(),
-        pattern.getCreatedAt(),
-        pattern.getUpdatedAt(),
-        pattern.getUserId(),
-        pattern.getFileIds()
-    );
+    return new GetPatternByIdResponse(pattern.getId(), pattern.getName(), pattern.getSource(),
+                                      pattern.getCraftType(), pattern.getNotes(),
+                                      pattern.getCreatedAt(), pattern.getUpdatedAt(),
+                                      pattern.getUserId(), pattern.getFileIds());
+  }
+
+  /**
+   * Maps a PostPatternRequest DTO to a single Pattern entity that can be stored in the database.
+   * This Pattern entity contains the pattern information that can be specified by the user.
+   *
+   * @param request the DTO to map
+   * @return a Pattern entity containing the user-provided pattern information
+   */
+  public Pattern toPattern(PostPatternRequest request) {
+    return new Pattern(null, request.name(), request.source(), request.craftType(), request.notes(),
+                       null, null, null, null);
   }
 }

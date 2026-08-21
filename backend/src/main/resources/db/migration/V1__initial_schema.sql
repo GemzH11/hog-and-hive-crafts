@@ -14,7 +14,7 @@ CREATE TABLE "users"
 CREATE TABLE "patterns"
 (
     "id"         UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    "user_id"    UUID             NOT NULL,
+    "user_id" UUID,
     "name"       TEXT             NOT NULL,
     "source"     TEXT,
     "craft_type" TEXT             NOT NULL,

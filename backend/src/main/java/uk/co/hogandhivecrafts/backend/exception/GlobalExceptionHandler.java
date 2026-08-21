@@ -1,21 +1,16 @@
 package uk.co.hogandhivecrafts.backend.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.util.HtmlUtils;
-import uk.co.hogandhivecrafts.backend.model.PatternSortField;
 
 /**
  * Handles application exceptions raised by MVC controllers and maps them to consistent JSON error
@@ -26,31 +21,36 @@ import uk.co.hogandhivecrafts.backend.model.PatternSortField;
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
-  private static final String INVALID_REQUEST = "Invalid request";
+  public static final String INVALID_REQUEST = "Invalid request";
+  public static final String RESOURCE_NOT_FOUND = "Resource not found";
+  public static final String UNEXPECTED_ERROR = "An unexpected error occurred";
+  public static final String MALFORMED_JSON_REQUEST_BODY = "Malformed JSON request body";
 
   /**
-   * Global exception handler for MethodArgumentNotValidExceptions.
+   * Handles Bean Validation failures on request arguments.
    *
    * @param ex      the thrown exception
    * @param request the request that contains the invalid argument
    * @return a formatted error response that can be returned to the client with a 400 status code
    */
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
+  public ResponseEntity<CustomErrorResponse> handleMethodArgumentNotValid(
       MethodArgumentNotValidException ex, HttpServletRequest request) {
     HttpStatus status = HttpStatus.BAD_REQUEST;
     String path = HtmlUtils.htmlEscape(request.getRequestURI());
     List<String> errors = ex.getBindingResult()
                             .getFieldErrors()
                             .stream()
-                            .map(this::formatFieldError)
+                            .map(error -> error.getDefaultMessage() == null
+                                          ? "Invalid request parameter"
+                                          : error.getDefaultMessage())
                             .toList();
 
     return buildResponse(status, INVALID_REQUEST, path, errors);
   }
 
   /**
-   * Global exception handler for custom NotFoundExceptions.
+   * Handles not-found domain exceptions.
    *
    * @param ex      the thrown exception
    * @param request the request that caused the exception to be thrown
@@ -59,15 +59,15 @@ public class GlobalExceptionHandler {
   @ExceptionHandler({UserNotFoundException.class,
       PatternNotFoundException.class,
       FileNotFoundException.class})
-  public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex,
-                                                      HttpServletRequest request) {
+  public ResponseEntity<CustomErrorResponse> handleNotFound(RuntimeException ex,
+                                                            HttpServletRequest request) {
     HttpStatus status = HttpStatus.NOT_FOUND;
     String path = HtmlUtils.htmlEscape(request.getRequestURI());
-    String message = ex.getMessage() == null || ex.getMessage().isBlank()
-                     ? "Not found"
-                     : ex.getMessage();
+    List<String> errors = ex.getMessage() == null || ex.getMessage().isBlank()
+                          ? List.of()
+                          : List.of(ex.getMessage());
 
-    return buildResponse(status, message, path, new ArrayList<>());
+    return buildResponse(status, RESOURCE_NOT_FOUND, path, errors);
   }
 
   /**
@@ -75,25 +75,27 @@ public class GlobalExceptionHandler {
    * (for example when a path variable cannot be converted to UUID).
    */
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-  public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex,
-                                                          HttpServletRequest request) {
+  public ResponseEntity<CustomErrorResponse> handleTypeMismatch(
+      MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
     HttpStatus status = HttpStatus.BAD_REQUEST;
     String path = HtmlUtils.htmlEscape(request.getRequestURI());
 
-    String paramName = ex.getName();
-    Object rejectedValue = ex.getValue();
-    // Include the expected type (when available) to make the error more actionable
-    String valueStr = rejectedValue == null ? "null" : rejectedValue.toString();
-    Class<?> requiredType = ex.getRequiredType();
-    String expected = requiredType != null ? requiredType.getSimpleName() : null;
-    String errorDetail = expected != null
-                         ? String.format("Invalid value for %s path parameter: %s (expected %s)",
-                                         paramName.toUpperCase(), valueStr, expected)
-                         : String.format("Invalid value for %s path parameter: %s",
-                                         paramName.toUpperCase(),
-                                         valueStr);
+    String rejectedValue = ex.getValue() == null ? "null" : ex.getValue().toString();
+    List<String> errors = List.of(
+        String.format("Invalid value for '%s': %s", ex.getName(), rejectedValue));
 
-    List<String> errors = List.of(errorDetail);
+    return buildResponse(status, INVALID_REQUEST, path, errors);
+  }
+
+  /**
+   * Handles malformed or unreadable JSON request bodies with stable 400 error details.
+   */
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<CustomErrorResponse> handleNotReadable(HttpMessageNotReadableException ex,
+                                                               HttpServletRequest request) {
+    HttpStatus status = HttpStatus.BAD_REQUEST;
+    String path = HtmlUtils.htmlEscape(request.getRequestURI());
+    List<String> errors = List.of(MALFORMED_JSON_REQUEST_BODY);
 
     return buildResponse(status, INVALID_REQUEST, path, errors);
   }
@@ -102,42 +104,20 @@ public class GlobalExceptionHandler {
    * Default exception handler for unhandled errors.
    */
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleGenericException(Exception ex,
-                                                              HttpServletRequest request) {
+  public ResponseEntity<CustomErrorResponse> handleGenericException(Exception ex,
+                                                                    HttpServletRequest request) {
     HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
     String path = HtmlUtils.htmlEscape(request.getRequestURI());
-    String message = "An unexpected error occurred";
 
-    return buildResponse(status, message, path, new ArrayList<>());
+    return buildResponse(status, UNEXPECTED_ERROR, path, List.of());
   }
 
-  /**
-   * Formats a FieldError into a user-friendly error message.
-   *
-   * @param fieldError The object containing the error
-   * @return a formatted error string
-   */
-  private String formatFieldError(FieldError fieldError) {
-    return switch (fieldError.getField()) {
-      case "sortField" -> String.format("Invalid value for 'sortField': %s. Allowed values: %s",
-                                        fieldError.getRejectedValue(),
-                                        Arrays.stream(PatternSortField.values())
-                                              .map(Enum::name)
-                                              .collect(Collectors.joining(", ")));
-      case "sortDirection" ->
-          String.format("Invalid value for 'sortDirection': %s. Allowed values: %s",
-                        fieldError.getRejectedValue(), Arrays.stream(Sort.Direction.values())
-                                                             .map(Enum::name)
-                                                             .collect(Collectors.joining(", ")));
-      default -> fieldError.getDefaultMessage();
-    };
-  }
-
-  private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message,
-                                                      String path, List<String> errors) {
+  private ResponseEntity<CustomErrorResponse> buildResponse(HttpStatus status, String message,
+                                                            String path, List<String> errors) {
+    List<String> safeErrors = errors == null ? List.of() : errors;
     return ResponseEntity.status(status)
                          .contentType(MediaType.APPLICATION_JSON)
-                         .body(new ErrorResponse(message, status.value(), path, errors));
+                         .body(new CustomErrorResponse(message, status.value(), path, safeErrors));
   }
 
   /**
@@ -146,6 +126,6 @@ public class GlobalExceptionHandler {
    * <p>Includes a human-readable message, HTTP status code, request path, and optional list of
    * specific errors.
    */
-  public record ErrorResponse(String message, int status, String path, List<String> errors) {
+  public record CustomErrorResponse(String message, int status, String path, List<String> errors) {
   }
 }

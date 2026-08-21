@@ -42,9 +42,8 @@ public class WebConfig implements WebMvcConfigurer {
    */
   @Override
   public void configurePathMatch(PathMatchConfigurer configurer) {
-    configurer.addPathPrefix("/api",
-                             HandlerTypePredicate.forBasePackage(
-                                 "uk.co.hogandhivecrafts.backend.controller"));
+    configurer.addPathPrefix("/api", HandlerTypePredicate.forBasePackage(
+        "uk.co.hogandhivecrafts.backend.controller"));
   }
 
   /**
@@ -53,7 +52,7 @@ public class WebConfig implements WebMvcConfigurer {
    * <p>Enables CORS for all /api/** endpoints with the configured allowed origins.
    * If no origins are configured or the list is empty, CORS is not set up.
    *
-   * <p>Allowed methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
+   * <p>Allowed methods: GET, POST, DELETE, OPTIONS
    * Allowed headers: All (*)
    *
    * @param registry the CORS registry to configure
@@ -67,7 +66,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     registry.addMapping("/api/**")
             .allowedOrigins(origins.toArray(String[]::new))
-            .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+            .allowedMethods("GET", "POST", "DELETE", "OPTIONS")
             .allowedHeaders("*");
   }
 }

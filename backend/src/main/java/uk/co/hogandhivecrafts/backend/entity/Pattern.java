@@ -43,12 +43,9 @@ import uk.co.hogandhivecrafts.backend.model.CraftType;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(
-    name = "patterns",
-    uniqueConstraints = {
-        @UniqueConstraint(name = "uq_patterns_user_id_name", columnNames = {"user_id", "name"})
-    }
-)
+@Table(name = "patterns", uniqueConstraints = {@UniqueConstraint(name = "uq_patterns_user_id_name", columnNames = {
+    "user_id",
+    "name"})})
 @ToString(onlyExplicitlyIncluded = true)
 public class Pattern {
 
@@ -116,7 +113,8 @@ public class Pattern {
    */
   // Relationships
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
+  // TODO:   @JoinColumn(name = "user_id", nullable = false)
+  @JoinColumn(name = "user_id")
   @EqualsAndHashCode.Exclude
   private User user;
 
