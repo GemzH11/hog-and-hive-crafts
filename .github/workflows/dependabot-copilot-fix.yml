@@ -1,0 +1,36 @@
+name: Ask Copilot to fix Dependabot PR
+
+on:
+  workflow_run:
+    workflows: ["PR Validation"]
+    types: [completed]
+
+permissions: { }
+
+jobs:
+  request-fix:
+    name: Comment on failing Dependabot PR
+    if: >
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.actor.login == 'dependabot[bot]' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      # Expects a repository secret COPILOT_TRIGGER_TOKEN: a fine-grained PAT (or GitHub App token)
+      # from a user with write access, with Pull requests: write. Comments posted with the default
+      # GITHUB_TOKEN do not trigger Copilot, so the workflow is skipped when the secret is absent.
+      - name: Comment with @copilot request
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_TRIGGER_TOKEN }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "COPILOT_TRIGGER_TOKEN is not configured; skipping."
+            exit 0
+          fi
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No pull request associated with this run; skipping."
+            exit 0
+          fi
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "@copilot PR Validation failed after this dependency update ($RUN_URL). Read the failing logs and make the minimal code changes needed to restore the build and tests. Follow .github/instructions/*, especially the 'Dependency upgrades' section in .github/copilot-instructions.md. Do not disable or weaken tests, lint, or coverage thresholds."
