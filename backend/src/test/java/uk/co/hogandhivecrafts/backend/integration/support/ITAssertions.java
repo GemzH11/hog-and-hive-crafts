@@ -7,6 +7,8 @@ import org.assertj.core.api.Assertions;
 import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsItem;
 import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsResponse;
 import uk.co.hogandhivecrafts.backend.dto.pattern.GetPatternByIdResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.PostPatternRequest;
+import uk.co.hogandhivecrafts.backend.dto.pattern.PostPatternResponse;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 
 /**
@@ -62,6 +64,19 @@ public class ITAssertions {
     Assertions.assertThat(actual.fileIds()).containsExactlyInAnyOrderElementsOf(expectedFileIds);
   }
 
+  public static void assertPersistedPatternMatchesPostPatternRequest(Pattern persisted,
+                                                                     PostPatternRequest request,
+                                                                     PostPatternResponse actual) {
+    Assertions.assertThat(persisted.getId()).isEqualTo(actual.id());
+    Assertions.assertThat(persisted.getName()).isEqualTo(request.name());
+    Assertions.assertThat(persisted.getSource()).isEqualTo(request.source());
+    Assertions.assertThat(persisted.getCraftType()).isEqualTo(request.craftType());
+    Assertions.assertThat(persisted.getNotes()).isEqualTo(request.notes());
+    Assertions.assertThat(persisted.getCreatedAt()).isNotNull();
+    Assertions.assertThat(persisted.getUpdatedAt()).isNotNull();
+    // TODO: Assertions.assertThat(actual.userId()).isEqualTo(request.getUser().getId());
+  }
+
   private static void assertGetAllPatternsItemMatchesPattern(Pattern expected,
                                                              List<UUID> expectedFileIds,
                                                              GetAllPatternsItem actual) {
@@ -71,6 +86,5 @@ public class ITAssertions {
     Assertions.assertThat(actual.createdAt()).isEqualTo(expected.getCreatedAt());
     Assertions.assertThat(actual.updatedAt()).isEqualTo(expected.getUpdatedAt());
     Assertions.assertThat(actual.fileIds()).containsExactlyInAnyOrderElementsOf(expectedFileIds);
-
   }
 }

@@ -16,6 +16,7 @@ import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.exception.CustomErrorResponse;
 import uk.co.hogandhivecrafts.backend.exception.GlobalExceptionHandler;
 import uk.co.hogandhivecrafts.backend.integration.AbstractIT;
+import uk.co.hogandhivecrafts.backend.integration.support.ITAssertions;
 import uk.co.hogandhivecrafts.backend.model.CraftType;
 import uk.co.hogandhivecrafts.backend.repository.FileRepository;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
@@ -75,9 +76,9 @@ class PostPatternIT extends AbstractIT {
     Assertions.assertThat(response.header("Location"))
               .isEqualTo(String.format(RESOURCE_URL_TEMPLATE, actual.id()));
 
-    Pattern expected = patternRepository.findById(actual.id()).orElseThrow();
+    Pattern persisted = patternRepository.findById(actual.id()).orElseThrow();
 
-    Assertions.assertThat(actual.id()).isEqualTo(expected.getId());
+    ITAssertions.assertPersistedPatternMatchesPostPatternRequest(persisted, request, actual);
   }
 
   /**
@@ -103,9 +104,9 @@ class PostPatternIT extends AbstractIT {
     Assertions.assertThat(response.header("Location"))
               .isEqualTo(String.format(RESOURCE_URL_TEMPLATE, actual.id()));
 
-    Pattern expected = patternRepository.findById(actual.id()).orElseThrow();
+    Pattern persisted = patternRepository.findById(actual.id()).orElseThrow();
 
-    Assertions.assertThat(actual.id()).isEqualTo(expected.getId());
+    ITAssertions.assertPersistedPatternMatchesPostPatternRequest(persisted, request, actual);
   }
 
   /**
@@ -152,6 +153,29 @@ class PostPatternIT extends AbstractIT {
                                               .as(CustomErrorResponse.class);
 
     List<String> expectedErrors = List.of("Craft type is required");
+
+    Assertions.assertThat(response.path()).isEqualTo(BASE_URL);
+    Assertions.assertThat(response.message()).isEqualTo(GlobalExceptionHandler.INVALID_REQUEST);
+    Assertions.assertThat(response.errors()).containsExactlyElementsOf(expectedErrors);
+  }
+
+  @Test
+  void savePattern_largeName_returns400() {
+    String largeName = "a".repeat(129);
+    PostPatternRequest request = new PostPatternRequest(largeName, null, CraftType.OTHER, null);
+
+    CustomErrorResponse response = RestAssured.given()
+                                              .contentType(ContentType.JSON)
+                                              .body(objectMapper.writeValueAsString(request))
+                                              .when()
+                                              .post(BASE_URL)
+                                              .then()
+                                              .statusCode(400)
+                                              .contentType(ContentType.JSON)
+                                              .extract()
+                                              .as(CustomErrorResponse.class);
+
+    List<String> expectedErrors = List.of("Name must be 128 characters or fewer");
 
     Assertions.assertThat(response.path()).isEqualTo(BASE_URL);
     Assertions.assertThat(response.message()).isEqualTo(GlobalExceptionHandler.INVALID_REQUEST);

@@ -415,6 +415,29 @@ class PatternControllerTest {
     verifyNoInteractions(patternService);
   }
 
+  @Test
+  void savePattern_largeName_returns400() throws Exception {
+    String largeName = "A".repeat(129);
+    PostPatternRequest request = new PostPatternRequest(largeName, String.format(
+        TestDataConstants.PATTERN_SOURCE, 0), TestDataConstants.PATTERN_CRAFT_TYPE, String.format(
+        TestDataConstants.PATTERN_NOTES, 0));
+
+    String responseBody = mockMvc.perform(post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
+                                                        .content(objectMapper.writeValueAsString(
+                                                            request)))
+                                 .andExpect(status().isBadRequest())
+                                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                                 .andReturn()
+                                 .getResponse()
+                                 .getContentAsString();
+
+    CustomErrorResponse response = objectMapper.readValue(responseBody, CustomErrorResponse.class);
+
+    PatternDtoAssertions.assertInvalidRequestMatches(response, BASE_URL,
+                                                     "Name must be 128 characters or fewer");
+    verifyNoInteractions(patternService);
+  }
+
   private void assertInvalidRequest(String responseBody, String expectedPath,
                                     String expectedError) {
     CustomErrorResponse response = objectMapper.readValue(responseBody, CustomErrorResponse.class);
