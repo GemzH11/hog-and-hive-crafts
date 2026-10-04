@@ -7,9 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 /**
  * Main entry point for the Hog & Hive Crafts backend Spring Boot application.
  *
- * <p>This application provides a REST API for managing craft patterns, users, and associated
- * files. Configuration properties are automatically scanned and registered as beans from
- * application.yml.
+ * <p>This application provides a REST API for managing craft patterns and their associated data.
+ * Configuration properties are automatically scanned and registered as beans from application.yml.
  */
 @SpringBootApplication
 // Search the classpath for classes annotated with @ConfigurationProperties and register them as
@@ -21,7 +20,7 @@ public class BackendApplication {
    *
    * @param args command-line arguments
    */
-  public static void main(String[] args) {
+  static void main(String[] args) {
     SpringApplication.run(BackendApplication.class, args);
   }
 
