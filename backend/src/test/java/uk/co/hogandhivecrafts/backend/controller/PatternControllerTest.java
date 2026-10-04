@@ -411,6 +411,25 @@ class PatternControllerTest {
     CustomErrorResponse response = objectMapper.readValue(responseBody, CustomErrorResponse.class);
 
     PatternDtoAssertions.assertInvalidRequestMatches(response, BASE_URL,
+        "Invalid value for 'craftType': INVALID. Expected one of: [KNITTING, CROCHET, SEWING, "
+            + "EMBROIDERY, CROSS_STITCH, QUILTING, FELTING, MACRAME, OTHER]");
+    verifyNoInteractions(patternService);
+  }
+
+  @Test
+  void savePattern_malformedJson_returns400() throws Exception {
+    String responseBody = mockMvc.perform(
+                                     post(BASE_URL).contentType(MediaType.APPLICATION_JSON)
+                                                   .content("{"))
+                                 .andExpect(status().isBadRequest())
+                                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                                 .andReturn()
+                                 .getResponse()
+                                 .getContentAsString();
+
+    CustomErrorResponse response = objectMapper.readValue(responseBody, CustomErrorResponse.class);
+
+    PatternDtoAssertions.assertInvalidRequestMatches(response, BASE_URL,
                                                      "Malformed JSON request body");
     verifyNoInteractions(patternService);
   }
