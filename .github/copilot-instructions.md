@@ -38,6 +38,7 @@ Do not duplicate those rules here; apply the file that matches the files being c
 
 When fixing a failing Dependabot PR or handling a dependency bump:
 
+- In `.github/workflows/*.yml`, pin every GitHub Action `uses:` reference to its full 40-character commit SHA and include a comment with the release tag.
 - Read the release notes and migration guide, and change only what the upgrade requires.
 - Keep architecture, testing, and documentation conventions from the instruction files above.
 - Backend (from `backend/`): run `./mvnw checkstyle:check`, `./mvnw test -Punit`, and `./mvnw verify -Pintegration` (Docker is required for Testcontainers).
