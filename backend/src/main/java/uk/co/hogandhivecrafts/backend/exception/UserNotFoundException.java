@@ -6,16 +6,21 @@ import java.util.UUID;
  * Exception thrown when a requested user is not found in the database.
  *
  * <p>This is a runtime exception that indicates the user with the specified ID
- * does not exist. It is caught by the global exception handler and converted to
- * an HTTP 404 (Not Found) response.
+ * does not exist. It is caught by the global exception handler and converted to an HTTP 404 (Not
+ * Found) response.
  */
 public class UserNotFoundException extends RuntimeException {
+  /**
+   * Message template used when a user cannot be found.
+   */
+  public static final String USER_NOT_FOUND = "User not found with ID: %s";
+
   /**
    * Constructs a new UserNotFoundException with a message indicating the user ID.
    *
    * @param id the ID of the user that was not found
    */
   public UserNotFoundException(UUID id) {
-    super(String.format("User not found with ID: %s", id));
+    super(String.format(USER_NOT_FOUND, id));
   }
 }
