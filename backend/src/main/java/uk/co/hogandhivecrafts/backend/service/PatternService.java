@@ -89,7 +89,7 @@ public class PatternService {
    * Saves a new pattern to the database.
    *
    * @param request DTO containing user-specified pattern details
-   * @return the UUID of the created pattern
+   * @return a response containing the UUID of the created pattern
    */
   public PostPatternResponse savePattern(PostPatternRequest request) {
     Pattern pattern = patternMapper.toPattern(request);
