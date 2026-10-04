@@ -11,9 +11,21 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum PatternSortField {
+  /**
+   * Sort by the pattern identifier.
+   */
   ID("id"),
+  /**
+   * Sort alphabetically by pattern name.
+   */
   NAME("name"),
+  /**
+   * Sort by the pattern creation timestamp.
+   */
   CREATED_AT("createdAt"),
+  /**
+   * Sort by the pattern update timestamp.
+   */
   UPDATED_AT("updatedAt");
 
   /**
