@@ -3,30 +3,34 @@ package uk.co.hogandhivecrafts.backend.integration.pattern;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.util.List;
-import java.util.UUID;
-import org.hamcrest.Matchers;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetPatternByIdResponse;
 import uk.co.hogandhivecrafts.backend.entity.File;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.entity.User;
+import uk.co.hogandhivecrafts.backend.exception.CustomErrorResponse;
+import uk.co.hogandhivecrafts.backend.exception.GlobalExceptionHandler;
+import uk.co.hogandhivecrafts.backend.exception.PatternNotFoundException;
 import uk.co.hogandhivecrafts.backend.integration.AbstractIT;
-import uk.co.hogandhivecrafts.backend.integration.support.FileITData;
 import uk.co.hogandhivecrafts.backend.integration.support.ITAssertions;
-import uk.co.hogandhivecrafts.backend.integration.support.PatternITData;
-import uk.co.hogandhivecrafts.backend.integration.support.UserITData;
+import uk.co.hogandhivecrafts.backend.integration.support.ITTestData;
 import uk.co.hogandhivecrafts.backend.repository.FileRepository;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
 import uk.co.hogandhivecrafts.backend.repository.UserRepository;
+import uk.co.hogandhivecrafts.backend.support.testdata.TestDataConstants;
 
 /**
  * Integration tests for retrieving a single pattern by ID.
  */
 class GetPatternByIdIT extends AbstractIT {
-  private static final UUID DEFAULT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+  private static final String BASE_URL_TEMPLATE = "/api/patterns/%s";
+  private static final String BASE_URL_VALID = String.format(BASE_URL_TEMPLATE,
+                                                             TestDataConstants.DEFAULT_ID);
+  private static final String BASE_URL_INVALID = String.format(BASE_URL_TEMPLATE, "INVALID");
 
   @LocalServerPort
   protected int port;
@@ -53,19 +57,17 @@ class GetPatternByIdIT extends AbstractIT {
    */
   @Test
   void getPatternById_patternExists_returns200AndPattern() {
-    User user = UserITData.buildMinimal(0);
-    Pattern pattern = PatternITData.buildDefault(0, user);
-    File file = FileITData.buildMinimal(0, pattern);
+    User user = ITTestData.buildUser(0);
+    Pattern pattern = ITTestData.buildPattern(0, user);
+    File file = ITTestData.buildFile(0, pattern);
 
     userRepository.save(user);
     pattern = patternRepository.save(pattern);
     file = fileRepository.save(file);
 
-    List<UUID> patternFileIds = List.of(file.getId());
-
     GetPatternByIdResponse response = RestAssured.given()
                                                  .when()
-                                                 .get(String.format("/api/patterns/%s",
+                                                 .get(String.format(BASE_URL_TEMPLATE,
                                                                     pattern.getId()))
                                                  .then()
                                                  .statusCode(200)
@@ -73,7 +75,11 @@ class GetPatternByIdIT extends AbstractIT {
                                                  .extract()
                                                  .as(GetPatternByIdResponse.class);
 
-    ITAssertions.assertPatternEquals(pattern, patternFileIds, response);
+    // Re-load entities from the database to ensure we have the correct state for comparison
+    pattern = patternRepository.findById(pattern.getId()).orElseThrow();
+
+    ITAssertions.assertGetPatternByIdResponseMatchesPattern(pattern, List.of(file.getId()),
+                                                            response);
   }
 
   /**
@@ -81,14 +87,21 @@ class GetPatternByIdIT extends AbstractIT {
    */
   @Test
   void getPatternById_patternNotFound_returns404() {
-    RestAssured.given()
-               .when()
-               .get(String.format("/api/patterns/%s", DEFAULT_ID))
-               .then()
-               .statusCode(404)
-               .contentType(ContentType.JSON)
-               .body("message",
-                     Matchers.is(String.format("Pattern not found with ID: %s", DEFAULT_ID)));
+    CustomErrorResponse response = RestAssured.given()
+                                              .when()
+                                              .get(BASE_URL_VALID)
+                                              .then()
+                                              .statusCode(404)
+                                              .contentType(ContentType.JSON)
+                                              .extract()
+                                              .as(CustomErrorResponse.class);
+
+    List<String> expectedErrors = List.of(
+        String.format(PatternNotFoundException.PATTERN_NOT_FOUND, TestDataConstants.DEFAULT_ID));
+
+    Assertions.assertThat(response.path()).isEqualTo(BASE_URL_VALID);
+    Assertions.assertThat(response.message()).isEqualTo(GlobalExceptionHandler.RESOURCE_NOT_FOUND);
+    Assertions.assertThat(response.errors()).containsExactlyElementsOf(expectedErrors);
   }
 
   /**
@@ -96,15 +109,20 @@ class GetPatternByIdIT extends AbstractIT {
    */
   @Test
   void getPatternById_InvalidId_returns400() {
-    RestAssured.given()
-               .when()
-               .get("/api/patterns/INVALID")
-               .then()
-               .statusCode(400)
-               .contentType(ContentType.JSON)
-               .body("message", Matchers.is("Invalid request"))
-               .body("errors", Matchers.hasSize(1))
-               .body("errors[0]",
-                     Matchers.is("Invalid value for ID path parameter: INVALID (expected UUID)"));
+    CustomErrorResponse response = RestAssured.given()
+                                              .when()
+                                              .get(BASE_URL_INVALID)
+                                              .then()
+                                              .statusCode(400)
+                                              .contentType(ContentType.JSON)
+                                              .extract()
+                                              .as(CustomErrorResponse.class);
+
+    List<String> expectedErrors = List.of(
+        String.format(GlobalExceptionHandler.TYPE_MISMATCH, "id", "INVALID"));
+
+    Assertions.assertThat(response.path()).isEqualTo(BASE_URL_INVALID);
+    Assertions.assertThat(response.message()).isEqualTo(GlobalExceptionHandler.INVALID_REQUEST);
+    Assertions.assertThat(response.errors()).containsExactlyElementsOf(expectedErrors);
   }
 }

@@ -24,8 +24,7 @@ import org.hibernate.generator.EventType;
  *
  * <p>A file can be any type of document or media (PDF, image, document) that is related to
  * a specific pattern. Each file is associated with exactly one pattern and contains metadata such
- * as display name, storage path, content type, and file size. A SHA-256 checksum provides data
- * integrity verification.
+ * as display name, storage path, content type, file size, and an optional SHA-256 checksum.
  *
  * <p>Timestamps (createdAt, updatedAt) are managed by the database.
  */
