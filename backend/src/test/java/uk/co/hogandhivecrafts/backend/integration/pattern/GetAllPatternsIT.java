@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
@@ -12,16 +13,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsItem;
-import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsItem;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsResponse;
 import uk.co.hogandhivecrafts.backend.entity.File;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.entity.User;
+import uk.co.hogandhivecrafts.backend.exception.CustomErrorResponse;
+import uk.co.hogandhivecrafts.backend.exception.GlobalExceptionHandler;
 import uk.co.hogandhivecrafts.backend.integration.AbstractIT;
-import uk.co.hogandhivecrafts.backend.integration.support.FileITData;
 import uk.co.hogandhivecrafts.backend.integration.support.ITAssertions;
-import uk.co.hogandhivecrafts.backend.integration.support.PatternITData;
-import uk.co.hogandhivecrafts.backend.integration.support.UserITData;
+import uk.co.hogandhivecrafts.backend.integration.support.ITTestData;
 import uk.co.hogandhivecrafts.backend.repository.FileRepository;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
 import uk.co.hogandhivecrafts.backend.repository.UserRepository;
@@ -30,6 +31,8 @@ import uk.co.hogandhivecrafts.backend.repository.UserRepository;
  * Integration tests for listing patterns with pagination and validation.
  */
 class GetAllPatternsIT extends AbstractIT {
+  private static final String BASE_URL = "/api/patterns";
+
   @LocalServerPort
   protected int port;
 
@@ -57,7 +60,7 @@ class GetAllPatternsIT extends AbstractIT {
   void getAllPatterns_noPatterns_returns200AndEmptyList() {
     RestAssured.given()
                .when()
-               .get("/api/patterns")
+               .get(BASE_URL)
                .then()
                .statusCode(200)
                .contentType(ContentType.JSON)
@@ -69,31 +72,35 @@ class GetAllPatternsIT extends AbstractIT {
    */
   @Test
   void getAllPatterns_patternsExist_returns200AndPagedResponse() {
-    User user = UserITData.buildMinimal(0);
-    Pattern pattern0 = PatternITData.buildDefault(0, user);
-    Pattern pattern1 = PatternITData.buildDefault(1, user);
-    File file = FileITData.buildMinimal(0, pattern0);
+    User user = ITTestData.buildUser(0);
+    Pattern pattern0 = ITTestData.buildPattern(0, user);
+    Pattern pattern1 = ITTestData.buildPattern(1, user);
+    File file = ITTestData.buildFile(0, pattern0);
 
     userRepository.save(user);
     pattern0 = patternRepository.save(pattern0);
     pattern1 = patternRepository.save(pattern1);
     file = fileRepository.save(file);
 
-    List<UUID> pattern0FileIds = List.of(file.getId());
-    List<UUID> pattern1FileIds = List.of();
-
     GetAllPatternsResponse response = RestAssured.given()
                                                  .when()
-                                                 .get("/api/patterns")
+                                                 .get(BASE_URL)
                                                  .then()
                                                  .statusCode(200)
                                                  .contentType(ContentType.JSON)
-                                                 .body("patterns", Matchers.hasSize(2))
                                                  .extract()
                                                  .as(GetAllPatternsResponse.class);
 
-    ITAssertions.assertPatternItemEquals(pattern0, pattern0FileIds, response.patterns().get(0));
-    ITAssertions.assertPatternItemEquals(pattern1, pattern1FileIds, response.patterns().get(1));
+    // Re-load entities from the database to ensure we have the correct state for comparison
+    pattern0 = patternRepository.findById(pattern0.getId()).orElseThrow();
+    pattern1 = patternRepository.findById(pattern1.getId()).orElseThrow();
+
+    HashMap<UUID, List<UUID>> expectedFileIds = new HashMap<>();
+    expectedFileIds.put(pattern0.getId(), List.of(file.getId()));
+    expectedFileIds.put(pattern1.getId(), List.of());
+
+    ITAssertions.assertGetAllPatternsResponseMatchesPatternList(List.of(pattern0, pattern1),
+                                                                expectedFileIds, response);
   }
 
   /**
@@ -101,8 +108,9 @@ class GetAllPatternsIT extends AbstractIT {
    */
   @Test
   void getAllPatterns_paginationApplied_returnsRequestedPageSorted() {
-    User user = UserITData.buildMinimal(0);
-    List<Pattern> patterns = PatternITData.buildList(25, user);
+    User user = ITTestData.buildUser(0);
+    List<Pattern> patterns = ITTestData.buildPatternList(25, user);
+
     userRepository.save(user);
     patterns.forEach(patternRepository::save);
 
@@ -113,17 +121,19 @@ class GetAllPatternsIT extends AbstractIT {
                                                  .queryParam("sortField", "NAME")
                                                  .queryParam("sortDirection", "DESC")
                                                  .when()
-                                                 .get("/api/patterns")
+                                                 .get(BASE_URL)
                                                  .then()
                                                  .statusCode(200)
                                                  .contentType(ContentType.JSON)
-                                                 .body("patterns", Matchers.hasSize(5))
-                                                 .body("totalElements", Matchers.is(25))
-                                                 .body("totalPages", Matchers.is(3))
-                                                 .body("page", Matchers.is(2))
-                                                 .body("size", Matchers.is(10))
                                                  .extract()
                                                  .as(GetAllPatternsResponse.class);
+
+    // Assert pagination properties
+    Assertions.assertThat(response.totalElements()).isEqualTo(25);
+    Assertions.assertThat(response.totalPages()).isEqualTo(3);
+    Assertions.assertThat(response.page()).isEqualTo(2);
+    Assertions.assertThat(response.size()).isEqualTo(10);
+    Assertions.assertThat(response.patterns()).hasSize(5);
 
     // Assert pagination ordering
     List<String> actual = response.patterns().stream().map(GetAllPatternsItem::name).toList();
@@ -136,24 +146,27 @@ class GetAllPatternsIT extends AbstractIT {
    */
   @Test
   void getAllPatterns_noRequestParams_usesDefaults() {
-    User user = UserITData.buildMinimal(0);
-    List<Pattern> patterns = PatternITData.buildList(25, user);
+    User user = ITTestData.buildUser(0);
+    List<Pattern> patterns = ITTestData.buildPatternList(25, user);
+
     userRepository.save(user);
     patterns.forEach(patternRepository::save);
 
     GetAllPatternsResponse response = RestAssured.given()
                                                  .when()
-                                                 .get("/api/patterns")
+                                                 .get(BASE_URL)
                                                  .then()
                                                  .statusCode(200)
                                                  .contentType(ContentType.JSON)
-                                                 .body("patterns", Matchers.hasSize(20))
-                                                 .body("totalElements", Matchers.is(25))
-                                                 .body("totalPages", Matchers.is(2))
-                                                 .body("page", Matchers.is(0))
-                                                 .body("size", Matchers.is(20))
                                                  .extract()
                                                  .as(GetAllPatternsResponse.class);
+
+    // Assert pagination properties
+    Assertions.assertThat(response.totalElements()).isEqualTo(25);
+    Assertions.assertThat(response.totalPages()).isEqualTo(2);
+    Assertions.assertThat(response.page()).isZero();
+    Assertions.assertThat(response.size()).isEqualTo(20);
+    Assertions.assertThat(response.patterns()).hasSize(20);
 
     // Assert pagination ordering
     List<OffsetDateTime> actual = response.patterns()
@@ -169,16 +182,21 @@ class GetAllPatternsIT extends AbstractIT {
    */
   @Test
   void getAllPatterns_negativePage_returns400() {
-    RestAssured.given()
-               .queryParam("page", -1)
-               .when()
-               .get("/api/patterns")
-               .then()
-               .statusCode(400)
-               .contentType(ContentType.JSON)
-               .body("message", Matchers.is("Invalid request"))
-               .body("errors", Matchers.hasSize(1))
-               .body("errors[0]", Matchers.is("Page must be greater than or equal to 0"));
+    CustomErrorResponse response = RestAssured.given()
+                                              .queryParam("page", -1)
+                                              .when()
+                                              .get(BASE_URL)
+                                              .then()
+                                              .statusCode(400)
+                                              .contentType(ContentType.JSON)
+                                              .extract()
+                                              .as(CustomErrorResponse.class);
+
+    List<String> expectedErrors = List.of("Page must be greater than or equal to 0");
+
+    Assertions.assertThat(response.path()).isEqualTo(BASE_URL);
+    Assertions.assertThat(response.message()).isEqualTo(GlobalExceptionHandler.INVALID_REQUEST);
+    Assertions.assertThat(response.errors()).containsExactlyElementsOf(expectedErrors);
   }
 
   /**
@@ -186,16 +204,21 @@ class GetAllPatternsIT extends AbstractIT {
    */
   @Test
   void getAllPatterns_negativeSize_returns400() {
-    RestAssured.given()
-               .queryParam("size", 0)
-               .when()
-               .get("/api/patterns")
-               .then()
-               .statusCode(400)
-               .contentType(ContentType.JSON)
-               .body("message", Matchers.is("Invalid request"))
-               .body("errors", Matchers.hasSize(1))
-               .body("errors[0]", Matchers.is("Size must be greater than or equal to 1"));
+    CustomErrorResponse response = RestAssured.given()
+                                              .queryParam("size", 0)
+                                              .when()
+                                              .get(BASE_URL)
+                                              .then()
+                                              .statusCode(400)
+                                              .contentType(ContentType.JSON)
+                                              .extract()
+                                              .as(CustomErrorResponse.class);
+
+    List<String> expectedErrors = List.of("Size must be greater than or equal to 1");
+
+    Assertions.assertThat(response.path()).isEqualTo(BASE_URL);
+    Assertions.assertThat(response.message()).isEqualTo(GlobalExceptionHandler.INVALID_REQUEST);
+    Assertions.assertThat(response.errors()).containsExactlyElementsOf(expectedErrors);
   }
 
   /**
@@ -203,16 +226,21 @@ class GetAllPatternsIT extends AbstractIT {
    */
   @Test
   void getAllPatterns_largeSize_returns400() {
-    RestAssured.given()
-               .queryParam("size", 101)
-               .when()
-               .get("/api/patterns")
-               .then()
-               .statusCode(400)
-               .contentType(ContentType.JSON)
-               .body("message", Matchers.is("Invalid request"))
-               .body("errors", Matchers.hasSize(1))
-               .body("errors[0]", Matchers.is("Size must be less than or equal to 100"));
+    CustomErrorResponse response = RestAssured.given()
+                                              .queryParam("size", 101)
+                                              .when()
+                                              .get(BASE_URL)
+                                              .then()
+                                              .statusCode(400)
+                                              .contentType(ContentType.JSON)
+                                              .extract()
+                                              .as(CustomErrorResponse.class);
+
+    List<String> expectedErrors = List.of("Size must be less than or equal to 100");
+
+    Assertions.assertThat(response.path()).isEqualTo(BASE_URL);
+    Assertions.assertThat(response.message()).isEqualTo(GlobalExceptionHandler.INVALID_REQUEST);
+    Assertions.assertThat(response.errors()).containsExactlyElementsOf(expectedErrors);
   }
 
   /**
@@ -220,18 +248,21 @@ class GetAllPatternsIT extends AbstractIT {
    */
   @Test
   void getAllPatterns_invalidSortDirection_returns400() {
-    RestAssured.given()
-               .queryParam("sortDirection", "INVALID")
-               .when()
-               .get("/api/patterns")
-               .then()
-               .statusCode(400)
-               .contentType(ContentType.JSON)
-               .body("message", Matchers.is("Invalid request"))
-               .body("errors", Matchers.hasSize(1))
-               .body("errors[0]",
-                     Matchers.is(
-                         "Invalid value for 'sortDirection': INVALID. Allowed values: ASC, DESC"));
+    CustomErrorResponse response = RestAssured.given()
+                                              .queryParam("sortDirection", "INVALID")
+                                              .when()
+                                              .get(BASE_URL)
+                                              .then()
+                                              .statusCode(400)
+                                              .contentType(ContentType.JSON)
+                                              .extract()
+                                              .as(CustomErrorResponse.class);
+
+    List<String> expectedErrors = List.of("Invalid value for 'sortDirection': INVALID");
+
+    Assertions.assertThat(response.path()).isEqualTo(BASE_URL);
+    Assertions.assertThat(response.message()).isEqualTo(GlobalExceptionHandler.INVALID_REQUEST);
+    Assertions.assertThat(response.errors()).containsExactlyElementsOf(expectedErrors);
   }
 
   /**
@@ -239,17 +270,20 @@ class GetAllPatternsIT extends AbstractIT {
    */
   @Test
   void getAllPatterns_invalidSortField_returns400() {
-    RestAssured.given()
-               .queryParam("sortField", "INVALID")
-               .when()
-               .get("/api/patterns")
-               .then()
-               .statusCode(400)
-               .contentType(ContentType.JSON)
-               .body("message", Matchers.is("Invalid request"))
-               .body("errors", Matchers.hasSize(1))
-               .body("errors[0]", Matchers.is(
-                   "Invalid value for 'sortField': INVALID. Allowed values: ID, NAME, CREATED_AT, " +
-                       "UPDATED_AT"));
+    CustomErrorResponse response = RestAssured.given()
+                                              .queryParam("sortField", "INVALID")
+                                              .when()
+                                              .get(BASE_URL)
+                                              .then()
+                                              .statusCode(400)
+                                              .contentType(ContentType.JSON)
+                                              .extract()
+                                              .as(CustomErrorResponse.class);
+
+    List<String> expectedErrors = List.of("Invalid value for 'sortField': INVALID");
+
+    Assertions.assertThat(response.path()).isEqualTo(BASE_URL);
+    Assertions.assertThat(response.message()).isEqualTo(GlobalExceptionHandler.INVALID_REQUEST);
+    Assertions.assertThat(response.errors()).containsExactlyElementsOf(expectedErrors);
   }
 }

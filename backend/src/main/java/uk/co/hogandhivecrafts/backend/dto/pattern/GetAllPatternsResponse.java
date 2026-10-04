@@ -1,4 +1,4 @@
-package uk.co.hogandhivecrafts.backend.dto;
+package uk.co.hogandhivecrafts.backend.dto.pattern;
 
 import java.util.List;
 
@@ -12,10 +12,10 @@ import java.util.List;
  * @param size          number of items per page
  */
 public record GetAllPatternsResponse(
-        List<GetAllPatternsItem> patterns,
-        long totalElements,
-        int totalPages,
-        int page,
-        int size
+    List<GetAllPatternsItem> patterns,
+    long totalElements,
+    int totalPages,
+    int page,
+    int size
 ) {
 }
