@@ -10,9 +10,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.co.hogandhivecrafts.backend.configuration.PaginationProperties;
-import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
-import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsRequest;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetPatternByIdResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.PostPatternRequest;
+import uk.co.hogandhivecrafts.backend.dto.pattern.PostPatternResponse;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.exception.PatternNotFoundException;
 import uk.co.hogandhivecrafts.backend.mapper.PatternMapper;
@@ -20,7 +22,7 @@ import uk.co.hogandhivecrafts.backend.model.PatternSortField;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
 
 /**
- * Service layer is where all the business logic lies.
+ * Provides pattern retrieval, creation, deletion, and pagination behavior.
  */
 @Service
 @RequiredArgsConstructor
@@ -40,7 +42,6 @@ public class PatternService {
    * @return a response containing a paginated list of patterns and pagination metadata.
    */
   public GetAllPatternsResponse getAllPatterns(GetAllPatternsRequest request) {
-
     Pageable pageable = toPageable(request);
     Page<Pattern> patterns = patternRepository.findAll(pageable);
 
@@ -82,8 +83,20 @@ public class PatternService {
       log.warn("Pattern with id {} not found for deletion", id);
       throw new PatternNotFoundException(id);
     }
+  }
 
+  /**
+   * Saves a new pattern to the database.
+   *
+   * @param request DTO containing user-specified pattern details
+   * @return a response containing the UUID of the created pattern
+   */
+  public PostPatternResponse savePattern(PostPatternRequest request) {
+    Pattern pattern = patternMapper.toPattern(request);
+    UUID id = patternRepository.save(pattern).getId();
+    log.info("Pattern with id {} saved successfully", id);
 
+    return new PostPatternResponse(id);
   }
 
   /**
@@ -95,7 +108,7 @@ public class PatternService {
    * @return a Pageable object constructed from the request parameters, with defaults applied as
    *     necessary
    */
-  private Pageable toPageable(GetAllPatternsRequest request) {
+  protected Pageable toPageable(GetAllPatternsRequest request) {
     int page = request.page() == null ? 0 : request.page();
     int size = request.size() == null ? paginationProperties.defaultPageSize() : request.size();
     Sort.Direction direction = request.sortDirection() == null

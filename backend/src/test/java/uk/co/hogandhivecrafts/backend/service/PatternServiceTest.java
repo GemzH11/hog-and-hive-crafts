@@ -1,44 +1,43 @@
 package uk.co.hogandhivecrafts.backend.service;
 
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import uk.co.hogandhivecrafts.backend.configuration.PaginationProperties;
-import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
-import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsRequest;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetPatternByIdResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.PostPatternRequest;
+import uk.co.hogandhivecrafts.backend.dto.pattern.PostPatternResponse;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 import uk.co.hogandhivecrafts.backend.exception.PatternNotFoundException;
 import uk.co.hogandhivecrafts.backend.mapper.PatternMapper;
 import uk.co.hogandhivecrafts.backend.model.PatternSortField;
 import uk.co.hogandhivecrafts.backend.repository.PatternRepository;
-import uk.co.hogandhivecrafts.backend.support.assertions.PatternsDtoAssertions;
-import uk.co.hogandhivecrafts.backend.support.testdata.EntityTestData;
-import uk.co.hogandhivecrafts.backend.support.testdata.PatternsDtoTestData;
 
+/**
+ * Tests pattern service behavior and pagination defaults using mocked dependencies.
+ */
 @ExtendWith(MockitoExtension.class)
 class PatternServiceTest {
-  private static final int PAGE_DEFAULT = 20;
-  private static final int PAGE = 1;
-  private static final int SIZE = 10;
-  private static final PatternSortField PATTERN_SORT_FIELD_DEFAULT = PatternSortField.CREATED_AT;
-  private static final PatternSortField PATTERN_SORT_FIELD = PatternSortField.NAME;
-  private static final Sort.Direction DIRECTION_DEFAULT = Sort.Direction.ASC;
-  private static final Sort.Direction DIRECTION = Sort.Direction.DESC;
-  private static final UUID DEFAULT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
   @Mock
   private PatternRepository patternRepository;
@@ -53,119 +52,160 @@ class PatternServiceTest {
   private PatternService patternService;
 
   @Test
-  void getAllPatterns_usesProvidedPagination() {
-    GetAllPatternsRequest request = PatternsDtoTestData.buildDefaultGetAllPatternsRequest();
-    Page<Pattern> page = Page.empty();
-    GetAllPatternsResponse response = PatternsDtoTestData.buildDefaultGetAllPatternsResponse();
-    ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
-
-    BDDMockito.given(patternRepository.findAll(ArgumentMatchers.any(Pageable.class)))
-              .willReturn(page);
-    BDDMockito.given(patternMapper.toGetAllPatternsResponse(page)).willReturn(response);
-
-    patternService.getAllPatterns(request);
-
-    verify(patternRepository).findAll(captor.capture());
-    Pageable pageable = captor.getValue();
-
-    Assertions.assertThat(pageable.getPageNumber()).isEqualTo(PAGE);
-    Assertions.assertThat(pageable.getPageSize()).isEqualTo(SIZE);
-
-    Sort sort = pageable.getSort();
-    Assertions.assertThat(sort).isNotNull();
-    Sort.Order order = sort.getOrderFor(PATTERN_SORT_FIELD.getValue());
-    Assertions.assertThat(order).isNotNull();
-    Assertions.assertThat(order.getDirection()).isEqualTo(DIRECTION);
-  }
-
-  @Test
-  void getAllPatterns_usesDefaultPaginationWhenNull() {
-    GetAllPatternsRequest request = PatternsDtoTestData.buildEmptyGetAllPatternsRequest();
-    Page<Pattern> page = Page.empty();
-    GetAllPatternsResponse response = PatternsDtoTestData.buildDefaultGetAllPatternsResponse();
-    ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
-
-    BDDMockito.given(patternRepository.findAll(ArgumentMatchers.any(Pageable.class)))
-              .willReturn(page);
-    BDDMockito.given(paginationProperties.defaultPageSize()).willReturn(PAGE_DEFAULT);
-    BDDMockito.given(paginationProperties.defaultPatternSortField())
-              .willReturn(PATTERN_SORT_FIELD_DEFAULT);
-    BDDMockito.given(paginationProperties.defaultSortDirection()).willReturn(DIRECTION_DEFAULT);
-    BDDMockito.given(patternMapper.toGetAllPatternsResponse(page)).willReturn(response);
-
-    patternService.getAllPatterns(request);
-
-    verify(patternRepository).findAll(captor.capture());
-    Pageable pageable = captor.getValue();
-
-    Assertions.assertThat(pageable.getPageNumber()).isZero();
-    Assertions.assertThat(pageable.getPageSize()).isEqualTo(PAGE_DEFAULT);
-
-    Sort sort = pageable.getSort();
-    Assertions.assertThat(sort).isNotNull();
-    Sort.Order order = sort.getOrderFor(PATTERN_SORT_FIELD_DEFAULT.getValue());
-    Assertions.assertThat(order).isNotNull();
-    Assertions.assertThat(order.getDirection()).isEqualTo(DIRECTION_DEFAULT);
-  }
-
-  @Test
   void getAllPatterns_callsRepositoryAndMapper() {
-    GetAllPatternsRequest request = PatternsDtoTestData.buildDefaultGetAllPatternsRequest();
-    Page<Pattern> page = Page.empty();
-    GetAllPatternsResponse expected = PatternsDtoTestData.buildDefaultGetAllPatternsResponse();
+    GetAllPatternsRequest mockRequest = mock(GetAllPatternsRequest.class);
+    Page<Pattern> mockPage = Page.empty();
+    GetAllPatternsResponse mockResponse = mock(GetAllPatternsResponse.class);
 
-    BDDMockito.given(patternRepository.findAll(ArgumentMatchers.any(Pageable.class)))
-              .willReturn(page);
-    BDDMockito.given(patternMapper.toGetAllPatternsResponse(page)).willReturn(expected);
+    when(mockRequest.page()).thenReturn(1);
+    when(mockRequest.size()).thenReturn(10);
+    when(mockRequest.sortDirection()).thenReturn(Sort.Direction.ASC);
+    when(mockRequest.sortField()).thenReturn(PatternSortField.NAME);
 
-    GetAllPatternsResponse actual = patternService.getAllPatterns(request);
+    when(patternRepository.findAll(Mockito.any(Pageable.class))).thenReturn(mockPage);
+    when(patternMapper.toGetAllPatternsResponse(mockPage)).thenReturn(mockResponse);
 
-    verify(patternRepository).findAll(ArgumentMatchers.any(Pageable.class));
-    verify(patternMapper).toGetAllPatternsResponse(page);
-    PatternsDtoAssertions.assertGetAllPatternsResponseEquals(actual, expected);
+    GetAllPatternsResponse actual = patternService.getAllPatterns(mockRequest);
+
+    verify(patternRepository, times(1)).findAll(Mockito.any(Pageable.class));
+    verify(patternMapper, times(1)).toGetAllPatternsResponse(mockPage);
+    Assertions.assertThat(actual).isEqualTo(mockResponse);
   }
 
   @Test
   void getPatternById_callsRepositoryAndMapper() {
-    GetPatternByIdResponse expected = PatternsDtoTestData.buildDefaultGetPatternByIdResponse();
-    Optional<Pattern> optional = Optional.of(EntityTestData.buildDefaultPattern());
+    UUID mockId = mock(UUID.class);
+    Pattern mockPattern = mock(Pattern.class);
+    GetPatternByIdResponse mockResponse = mock(GetPatternByIdResponse.class);
 
-    BDDMockito.given(patternRepository.findById(DEFAULT_ID)).willReturn(optional);
-    BDDMockito.given(patternMapper.toGetPatternByIdResponse(optional.get())).willReturn(expected);
+    when(patternRepository.findById(mockId)).thenReturn(Optional.of(mockPattern));
+    when(patternMapper.toGetPatternByIdResponse(mockPattern)).thenReturn(mockResponse);
 
-    GetPatternByIdResponse actual = patternService.getPatternById(DEFAULT_ID);
+    GetPatternByIdResponse actual = patternService.getPatternById(mockId);
 
-    verify(patternRepository).findById(DEFAULT_ID);
-    verify(patternMapper).toGetPatternByIdResponse(optional.get());
-    PatternsDtoAssertions.assertGetPatternByIdResponseEquals(actual, expected);
+    verify(patternRepository, times(1)).findById(mockId);
+    verify(patternMapper, times(1)).toGetPatternByIdResponse(mockPattern);
+    Assertions.assertThat(actual).isEqualTo(mockResponse);
   }
 
   @Test
   void getPatternById_notFound_throwsPatternNotFoundException() {
-    BDDMockito.given(patternRepository.findById(DEFAULT_ID)).willReturn(Optional.empty());
+    UUID mockId = mock(UUID.class);
 
-    Assertions.assertThatExceptionOfType(PatternNotFoundException.class)
-              .isThrownBy(() -> patternService.getPatternById(DEFAULT_ID))
-              .withMessage(String.format("Pattern not " + "found with ID: %s", DEFAULT_ID));
+    when(patternRepository.findById(mockId)).thenReturn(Optional.empty());
+
+    Assertions.assertThatThrownBy(() -> patternService.getPatternById(mockId))
+              .isInstanceOf(PatternNotFoundException.class)
+              .hasMessageContaining(
+                  String.format(PatternNotFoundException.PATTERN_NOT_FOUND, mockId));
+
+    verify(patternRepository, times(1)).findById(mockId);
   }
 
   @Test
   void deletePatternById_callsRepository() {
-    BDDMockito.given(patternRepository.existsById(DEFAULT_ID)).willReturn(true);
-    BDDMockito.doNothing().when(patternRepository).deleteById(DEFAULT_ID);
+    UUID mockId = mock(UUID.class);
 
-    patternService.deletePatternById(DEFAULT_ID);
+    when(patternRepository.existsById(mockId)).thenReturn(true);
+    doNothing().when(patternRepository).deleteById(mockId);
 
-    verify(patternRepository).existsById(DEFAULT_ID);
-    verify(patternRepository).deleteById(DEFAULT_ID);
+    patternService.deletePatternById(mockId);
+
+    verify(patternRepository, times(1)).existsById(mockId);
+    verify(patternRepository, times(1)).deleteById(mockId);
   }
 
   @Test
   void deletePatternById_notFound_throwsPatternNotFoundException() {
-    BDDMockito.given(patternRepository.existsById(DEFAULT_ID)).willReturn(false);
+    UUID mockId = mock(UUID.class);
 
-    Assertions.assertThatExceptionOfType(PatternNotFoundException.class)
-              .isThrownBy(() -> patternService.deletePatternById(DEFAULT_ID))
-              .withMessage(String.format("Pattern not found with ID: %s", DEFAULT_ID));
+    when(patternRepository.existsById(mockId)).thenReturn(false);
+
+    Assertions.assertThatThrownBy(() -> patternService.deletePatternById(mockId))
+              .isInstanceOf(PatternNotFoundException.class)
+              .hasMessageContaining(
+                  String.format(PatternNotFoundException.PATTERN_NOT_FOUND, mockId));
+
+    verify(patternRepository, times(1)).existsById(mockId);
+  }
+
+  @Test
+  void deletePatternById_raceCondition_throwsPatternNotFoundException() {
+    UUID mockId = mock(UUID.class);
+
+    when(patternRepository.existsById(mockId)).thenReturn(true);
+    doThrow(new EmptyResultDataAccessException(1)).when(patternRepository).deleteById(mockId);
+
+    Assertions.assertThatThrownBy(() -> patternService.deletePatternById(mockId))
+              .isInstanceOf(PatternNotFoundException.class)
+              .hasMessageContaining(
+                  String.format(PatternNotFoundException.PATTERN_NOT_FOUND, mockId));
+
+    verify(patternRepository, times(1)).existsById(mockId);
+    verify(patternRepository, times(1)).deleteById(mockId);
+  }
+
+  @Test
+  void savePattern_callsRepositoryAndMapper() {
+    PostPatternRequest mockRequest = mock(PostPatternRequest.class);
+    Pattern mockPattern = mock(Pattern.class);
+    UUID mockId = mock(UUID.class);
+
+    when(patternMapper.toPattern(mockRequest)).thenReturn(mockPattern);
+    when(patternRepository.save(mockPattern)).thenReturn(mockPattern);
+    when(mockPattern.getId()).thenReturn(mockId);
+
+    PostPatternResponse response = patternService.savePattern(mockRequest);
+
+    verify(patternMapper, times(1)).toPattern(mockRequest);
+    verify(patternRepository, times(1)).save(mockPattern);
+    verify(mockPattern, times(1)).getId();
+    Assertions.assertThat(response.id()).isEqualTo(mockId);
+  }
+
+  @Test
+  void toPageable_withRequestParams_returnsCorrectPageable() {
+    GetAllPatternsRequest mockRequest = mock(GetAllPatternsRequest.class);
+
+    when(mockRequest.page()).thenReturn(1);
+    when(mockRequest.size()).thenReturn(10);
+    when(mockRequest.sortDirection()).thenReturn(Sort.Direction.ASC);
+    when(mockRequest.sortField()).thenReturn(PatternSortField.NAME);
+
+    Pageable pageable = patternService.toPageable(mockRequest);
+
+    Sort expectedSort = Sort.by(Sort.Direction.ASC, "name").and(Sort.by(Sort.Direction.ASC, "id"));
+
+    verifyNoInteractions(paginationProperties);
+    Assertions.assertThat(pageable.getPageNumber()).isEqualTo(1);
+    Assertions.assertThat(pageable.getPageSize()).isEqualTo(10);
+    Assertions.assertThat(pageable.getSort()).isEqualTo(expectedSort);
+  }
+
+  @Test
+  void toPageable_noRequestParams_returnsDefaultPageable() {
+    GetAllPatternsRequest mockRequest = mock(GetAllPatternsRequest.class);
+
+    when(mockRequest.page()).thenReturn(null);
+    when(mockRequest.size()).thenReturn(null);
+    when(mockRequest.sortDirection()).thenReturn(null);
+    when(mockRequest.sortField()).thenReturn(null);
+
+    when(paginationProperties.defaultPageSize()).thenReturn(20);
+    when(paginationProperties.defaultSortDirection()).thenReturn(Sort.Direction.DESC);
+    when(paginationProperties.defaultPatternSortField()).thenReturn(PatternSortField.CREATED_AT);
+
+    Pageable pageable = patternService.toPageable(mockRequest);
+
+    Sort expectedSort = Sort.by(Sort.Direction.DESC, "createdAt")
+                            .and(Sort.by(Sort.Direction.DESC, "id"));
+
+    verify(paginationProperties, times(1)).defaultPageSize();
+    verify(paginationProperties, times(1)).defaultSortDirection();
+    verify(paginationProperties, times(1)).defaultPatternSortField();
+
+    Assertions.assertThat(pageable.getPageNumber()).isZero();
+    Assertions.assertThat(pageable.getPageSize()).isEqualTo(20);
+    Assertions.assertThat(pageable.getSort()).isEqualTo(expectedSort);
   }
 }
