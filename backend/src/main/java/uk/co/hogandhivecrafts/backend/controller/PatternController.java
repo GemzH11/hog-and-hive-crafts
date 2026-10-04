@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsRequest;
-import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
-import uk.co.hogandhivecrafts.backend.dto.PostPatternRequest;
-import uk.co.hogandhivecrafts.backend.dto.PostPatternResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsRequest;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetPatternByIdResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.PostPatternRequest;
+import uk.co.hogandhivecrafts.backend.dto.pattern.PostPatternResponse;
 import uk.co.hogandhivecrafts.backend.service.PatternService;
 
 /**
@@ -54,6 +54,7 @@ public class PatternController {
    * @param request the user-specified details of the pattern to be created
    * @return ID of the created pattern
    */
+  @SuppressWarnings("checkstyle:LineLength")
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<PostPatternResponse> savePattern(
       @Valid @RequestBody PostPatternRequest request) {
@@ -79,9 +80,10 @@ public class PatternController {
   }
 
   /**
-   * Deletes a pattern by its ID, including any associated files.
+   * Deletes a pattern by its ID. Associated files are deleted through the entity relationship.
    *
    * @param id the ID of the pattern to delete
+   * @return an empty response with HTTP 204 when deletion succeeds
    */
   @DeleteMapping(value = "/{id}")
   public ResponseEntity<Void> deletePatternById(@PathVariable("id") UUID id) {

@@ -43,9 +43,8 @@ import uk.co.hogandhivecrafts.backend.model.CraftType;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "patterns", uniqueConstraints = {@UniqueConstraint(name = "uq_patterns_user_id_name", columnNames = {
-    "user_id",
-    "name"})})
+@Table(name = "patterns", uniqueConstraints = {@UniqueConstraint(name = "uq_patterns_user_id_name",
+    columnNames = {"user_id", "name"})})
 @ToString(onlyExplicitlyIncluded = true)
 public class Pattern {
 

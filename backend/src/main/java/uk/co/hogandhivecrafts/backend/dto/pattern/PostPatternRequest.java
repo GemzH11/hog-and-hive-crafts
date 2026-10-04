@@ -1,4 +1,4 @@
-package uk.co.hogandhivecrafts.backend.dto;
+package uk.co.hogandhivecrafts.backend.dto.pattern;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +15,15 @@ import uk.co.hogandhivecrafts.backend.model.CraftType;
  * @param notes     additional notes about the pattern
  */
 public record PostPatternRequest(
-    @NotBlank(message = "Name is required") @Size(max = 128, message = "Name must be 128 characters or fewer") String name,
-    String source, @NotNull(message = "Craft type is required") CraftType craftType, String notes) {
+    @NotBlank(message = "Name is required")
+    @Size(max = 128, message = "Name must be 128 characters or fewer")
+    String name,
+
+    String source,
+
+    @NotNull(message = "Craft type is required")
+    CraftType craftType,
+
+    String notes
+) {
 }

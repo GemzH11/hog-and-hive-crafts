@@ -1,4 +1,4 @@
-package uk.co.hogandhivecrafts.backend.dto;
+package uk.co.hogandhivecrafts.backend.dto.pattern;
 
 import java.util.UUID;
 

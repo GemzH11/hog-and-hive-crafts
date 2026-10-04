@@ -8,6 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+/**
+ * Verifies that Flyway migrations are recorded successfully in the integration-test database.
+ */
 @SpringBootTest
 @Testcontainers
 class FlywayIT extends AbstractIT {

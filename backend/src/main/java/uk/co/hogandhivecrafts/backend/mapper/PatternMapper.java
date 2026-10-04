@@ -3,10 +3,10 @@ package uk.co.hogandhivecrafts.backend.mapper;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsItem;
-import uk.co.hogandhivecrafts.backend.dto.GetAllPatternsResponse;
-import uk.co.hogandhivecrafts.backend.dto.GetPatternByIdResponse;
-import uk.co.hogandhivecrafts.backend.dto.PostPatternRequest;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsItem;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetAllPatternsResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.GetPatternByIdResponse;
+import uk.co.hogandhivecrafts.backend.dto.pattern.PostPatternRequest;
 import uk.co.hogandhivecrafts.backend.entity.Pattern;
 
 /**
@@ -60,7 +60,7 @@ public class PatternMapper {
     return new GetPatternByIdResponse(pattern.getId(), pattern.getName(), pattern.getSource(),
                                       pattern.getCraftType(), pattern.getNotes(),
                                       pattern.getCreatedAt(), pattern.getUpdatedAt(),
-                                      pattern.getUserId(), pattern.getFileIds());
+                                      pattern.getFileIds());
   }
 
   /**
