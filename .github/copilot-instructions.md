@@ -33,3 +33,17 @@ Follow the focused rules in `.github/instructions/`:
 - `markdown.instructions.md` - Markdown style and accessibility
 
 Do not duplicate those rules here; apply the file that matches the files being changed.
+
+## Dependency upgrades (Dependabot and automated remediation)
+
+When fixing a failing Dependabot PR or handling a dependency bump:
+
+- In `.github/workflows/*.yml`, pin every GitHub Action `uses:` reference to its full 40-character commit SHA and include a comment with the release tag.
+- Read the release notes and migration guide, and change only what the upgrade requires.
+- Keep architecture, testing, and documentation conventions from the instruction files above.
+- Backend (from `backend/`): run `./mvnw checkstyle:check`, `./mvnw test -Punit`, and `./mvnw verify -Pintegration` (Docker is required for Testcontainers).
+- Frontend (from `frontend/`): run `npm run lint`, `npm run test:unit`, and `npm run build`.
+- Never disable or delete tests, relax lint rules, or lower coverage thresholds to make a build pass.
+- Do not downgrade or pin the dependency unless the upgrade cannot be made to work; explain why in the PR.
+- Update `README.md` or `documentation/` if versions, setup, or behavior change.
+- Major updates always need human review; summarize breaking changes in the PR.
