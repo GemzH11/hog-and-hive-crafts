@@ -9,11 +9,9 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Spring Security configuration class for the Hog & Hive Crafts backend.
  *
- * <p>This configuration handles security settings including CSRF protection, CORS integration,
- * and HTTP authorization. Currently configured for development with all endpoints allowing public
- * access.
- * <strong>TODO: For production, this should be properly configured with proper authentication
- * and authorization.</strong>
+ * <p>CSRF protection is disabled, CORS is delegated to {@link WebConfig}, and all requests are
+ * currently permitted without authentication. Authentication and authorization must be configured
+ * before exposing the application in production.
  */
 @Configuration
 public class SecurityConfig {
@@ -21,10 +19,8 @@ public class SecurityConfig {
   /**
    * Configures the security filter chain for HTTP requests.
    *
-   * <p>Current configuration:
-   * - CSRF protection is disabled (suitable for API with token-based auth) - CORS configuration is
-   * delegated to MVC configuration (WebConfig) - All HTTP requests are permitted without
-   * authentication (development only)
+   * <p>CSRF protection is disabled, CORS uses the MVC configuration, and every request is
+   * permitted without authentication.
    *
    * @param http the HttpSecurity object to configure
    * @return the configured SecurityFilterChain

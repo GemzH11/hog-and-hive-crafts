@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
+        <version>4.1.1</version>
         <relativePath/>
     </parent>
     <groupId>uk.co.hogandhivecrafts</groupId>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.12</version>
+            <version>42.7.13</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>6.0.0</version>
+            <version>6.0.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -86,7 +86,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.46</version>
+                            <version>1.18.48</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -218,12 +218,34 @@
                                         <exclude>*Test</exclude>
                                         <exclude>uk.co.hogandhivecrafts.backend.configuration</exclude>
                                         <exclude>uk.co.hogandhivecrafts.backend.entity</exclude>
+                                        <exclude>uk.co.hogandhivecrafts.backend.exception</exclude>
                                     </excludes>
                                     <limits>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.80</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                                <!-- Specific rule for the exception package with a lower
+                                coverage threshold, as not all exceptions are thrown in the code
+                                currently
+                                 -->
+                                <rule>
+                                    <element>PACKAGE</element>
+                                    <includes>
+                                        <!-- Include only the subpackages for coverage checks -->
+                                        <include>uk.co.hogandhivecrafts.backend.exception</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>*Test</exclude>
+                                    </excludes>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
