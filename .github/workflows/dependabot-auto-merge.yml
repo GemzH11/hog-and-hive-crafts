@@ -1,0 +1,31 @@
+name: Dependabot auto-merge
+
+on:
+  pull_request:
+
+permissions: { }
+
+jobs:
+  auto-merge:
+    name: Enable auto-merge for patch/minor updates
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Fetch Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a # v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Auto-merge only completes once the required status checks (PR Validation)
+      # pass; configure branch protection on `main` to require them and
+      # enable "Allow auto-merge" in repository settings.
+      - name: Enable auto-merge (patch and minor only)
+        if: steps.meta.outputs.update-type == 'version-update:semver-patch' || steps.meta.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.DEPENDABOT_AUTO_MERGE_TOKEN }}

@@ -9,7 +9,6 @@ updates:
       time: "04:00"
       timezone: "UTC"
     open-pull-requests-limit: 5
-    target-branch: "main"
     labels:
       - "dependencies"
       - "backend"
@@ -36,11 +35,6 @@ updates:
         patterns:
           - "org.apache.maven*"
           - "org.jacoco*"
-          - "com.diffplug.spotless*"
-    ignore:
-      # Keep the explicitly pinned Java toolchain and build settings stable unless intentionally changed.
-      - dependency-name: "org.projectlombok:lombok"
-        versions: ["1.18.46"]
 
   # Frontend: npm dependencies for the React/Vite app
   - package-ecosystem: "npm"
@@ -51,7 +45,6 @@ updates:
       time: "04:30"
       timezone: "UTC"
     open-pull-requests-limit: 5
-    target-branch: "main"
     labels:
       - "dependencies"
       - "frontend"
@@ -88,7 +81,3 @@ updates:
           - "autoprefixer"
           - "jsdom"
           - "globals"
-    ignore:
-      # Keep the npm manifest stable for toolchain-related packages if they are intentionally managed elsewhere.
-      - dependency-name: "typescript"
-        versions: ["5.9.3"]
