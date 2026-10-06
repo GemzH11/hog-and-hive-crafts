@@ -1,0 +1,78 @@
+name: Ask Copilot to fix Dependabot PR
+
+on:
+  workflow_run:
+    workflows: ["PR Validation"]
+    types: [completed]
+
+permissions: { }
+
+jobs:
+  request-fix:
+    name: Comment on failing Dependabot PR
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pull-requests: read
+    steps:
+      - name: Verify failed Dependabot pull request
+        id: verify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          if [[ ! "$WORKFLOW_RUN_ID" =~ ^[0-9]+$ ]]; then
+            echo "Invalid workflow run ID; skipping."
+            exit 0
+          fi
+
+          run_data="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$WORKFLOW_RUN_ID")"
+          if [[ "$(jq -r '.path' <<< "$run_data")" != ".github/workflows/pr-validation.yml" ||
+                "$(jq -r '.event' <<< "$run_data")" != "pull_request" ||
+                "$(jq -r '.conclusion' <<< "$run_data")" != "failure" ]]; then
+            echo "Run is not a failed PR Validation pull request run; skipping."
+            exit 0
+          fi
+
+          if [[ "$(jq '.pull_requests | length' <<< "$run_data")" != "1" ]]; then
+            echo "Run is not associated with exactly one pull request; skipping."
+            exit 0
+          fi
+
+          pr_number="$(jq -r '.pull_requests[0].number' <<< "$run_data")"
+          if [[ ! "$pr_number" =~ ^[0-9]+$ ]]; then
+            echo "Invalid pull request number; skipping."
+            exit 0
+          fi
+
+          pull_request="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$pr_number")"
+          if [[ "$(jq -r '.user.login' <<< "$pull_request")" != "dependabot[bot]" ||
+                "$(jq -r '.head.sha' <<< "$pull_request")" != "$(jq -r '.head_sha' <<< "$run_data")" ]]; then
+            echo "Pull request is not authored by Dependabot at the failed run's commit; skipping."
+            exit 0
+          fi
+
+          {
+            echo "pr_number=$pr_number"
+            echo "run_url=$(jq -r '.html_url' <<< "$run_data")"
+          } >> "$GITHUB_OUTPUT"
+
+      # Expects a repository secret COPILOT_TRIGGER_TOKEN: a fine-grained PAT (or GitHub App token)
+      # from a user with write access, with Pull requests: write. Comments posted with the default
+      # GITHUB_TOKEN do not trigger Copilot, so the workflow is skipped when the secret is absent.
+      - name: Comment with @copilot request
+        if: steps.verify.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_TRIGGER_TOKEN }}
+          PR_NUMBER: ${{ steps.verify.outputs.pr_number }}
+          RUN_URL: ${{ steps.verify.outputs.run_url }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "COPILOT_TRIGGER_TOKEN is not configured; skipping."
+            exit 0
+          fi
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No pull request associated with this run; skipping."
+            exit 0
+          fi
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "@copilot PR Validation failed after this dependency update ($RUN_URL). Read the failing logs and make the minimal code changes needed to restore the build and tests. Follow .github/instructions/*, especially the 'Dependency upgrades' section in .github/copilot-instructions.md. Do not disable or weaken tests, lint, or coverage thresholds."
